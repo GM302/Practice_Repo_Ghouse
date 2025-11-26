@@ -1,0 +1,14 @@
+<template>
+
+    <P> Hello, {name}</P>
+    <p>Email address: {email}</p>
+    <p>Phone Number : {phone}</p>
+
+    <lightning-input label="Name" value={name} name="nam"></lightning-input>
+    <lightning-input label="Email" value={email} name="ema"></lightning-input>
+    <lightning-input label="phone" value={phone} name="pho"></lightning-input>
+
+    <lightning-button label="Submit" onclick={handleClick}></lightning-button>
+    <lightning-button label="Clear" onclick={handleClear}></lightning-button>
+
+</template>

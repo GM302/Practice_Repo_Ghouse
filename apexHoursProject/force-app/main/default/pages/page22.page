@@ -1,0 +1,6 @@
+<apex:page >
+    <!--
+    select id, PDMS_License_State__c, PDMS_Step_Attribute_Name__c,PDMS_Status__c,RecordType.name,CreatedBy.Name from PDMS_Credentialing_Request_Step_Attribut__c Where PDMS_License_State__c!= null and RecordType.name ='Professional License' and PDMS_Step_Attribute_Name__c like '%Professional License%' and PDMS_Status__c ='Verified'
+-->
+ 
+</apex:page>

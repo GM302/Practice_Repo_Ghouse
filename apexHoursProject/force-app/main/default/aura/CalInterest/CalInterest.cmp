@@ -1,0 +1,23 @@
+<aura:component >
+    
+   <!-- <aura:attribute name="amount" type="decimal"/>
+    <aura:attribute name="rate" type="decimal"/>
+    <aura:attribute name="term" type="decimal"/>
+    <aura:attribute name="amountInseted" type="decimal"/>
+    <aura:attribute name="comamount" type="decimal"/>-->
+    
+    <lightning:card title="Interest Calculator" iconName="topic">
+        
+        <lightning:input label="Enter Amount" aura:id="amou"/>
+        <lightning:input label="Enter Rate of Interest" aura:id="rat"/>
+        <lightning:input label="Enter Term" aura:id="ter"/>
+       <lightning:input label="Interset at the end of the term" aura:id="si" />
+       <lightning:input label="Total Meturity amount" aura:id="ci" />  
+        
+        <lightning:button label="SI" onclick="{!c.Insert}" aura:id="simb"/>
+        <lightning:button label="CI" onclick="{!c.Insert}" aura:id="comb"/>
+       
+    </lightning:card>
+    
+	
+</aura:component>

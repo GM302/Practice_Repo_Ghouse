@@ -1,0 +1,11 @@
+<template>
+
+      <lightning-card  variant="Narrow"  title="This Parent Cmp" icon-name="standard:account">
+
+          <p> counter : {countCounter}</p>
+
+          <c-child-cmp-communication onminus={handleDecremnet} onadd={handleIncrement}></c-child-cmp-communication>
+        
+    </lightning-card>
+
+</template>

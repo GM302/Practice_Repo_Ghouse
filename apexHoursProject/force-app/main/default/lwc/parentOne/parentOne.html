@@ -1,0 +1,14 @@
+<template>
+
+    <lightning-card title="Parent One cmp">
+
+        <lightning-input type="text" variant="standard" name="name" label="Enter Input" placeholder="type here..." value={parentTitle} onchange={handleChnage} ></lightning-input>
+
+    </lightning-card>
+
+
+    <lightning-card>
+        <c-child-one my-title={parentTitle}></c-child-one>
+    </lightning-card>
+
+</template>

@@ -1,0 +1,25 @@
+<template>
+
+    <lightning-card  variant="Narrow"  title="Hello" icon-name="standard:account">
+
+        <template if:true={accountsList}>
+
+            <lightning-datatable
+                key-field="id"
+                data={accountsList}
+                show-row-number-column
+                row-number-offset={rowOffset}
+                hide-checkbox-column
+                columns={columns}
+                onrowaction={handleRowAction}>
+            </lightning-datatable>
+
+
+
+        </template>
+
+
+       
+    </lightning-card>
+
+</template>

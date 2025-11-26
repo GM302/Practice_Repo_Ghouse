@@ -1,0 +1,4 @@
+/* Hide headers by default */
+.hide-headers .slds-c-table__head {
+    display: none;
+}

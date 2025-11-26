@@ -1,0 +1,29 @@
+<template>
+
+    <lightning-card title="Search Contact" icon-name="standard:account">
+        <lightning-button label="delete" onclick={handleDelete}></lightning-button>
+
+        <lightning-input label="Enter name" type="search" onchange={handleChane} value={searchkey}></lightning-input>
+
+<template if:true={contactdata}>
+<lightning-datatable key-field="Id" data={contactdata} columns={cols} onrowselection={handleSelection} max-row-selection="1"></lightning-datatable>
+
+</template>
+
+
+
+<!-- <div class="slds-var-m-around_medium">
+       <template for:each={cons.data} for:item="obj">
+
+  <p key={obj.id}>{obj.Name}</p> 
+        <p key={obj.id}>{obj.Phone}</p> 
+        <p key={obj.id}>{obj.Email}</p>
+
+
+      
+
+       </template>
+</div> -->
+    </lightning-card>
+
+</template>

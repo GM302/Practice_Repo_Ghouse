@@ -1,0 +1,17 @@
+<aura:component >
+    
+   <lightning:button label="Submit" variant="Test Destructive"  onclick ="{!callme}" title ="submit here"/>
+    <lightning:button label="Cancle" variant="destructive" />
+    <lightning:button label="Mybutton" variant="base" />
+     <lightning:button label="Save" variant="success" />
+    
+   <!-- <lightning:button label="Follow" iconName="utility:add"  />
+    <lightning:buttongroup>
+    
+    
+    <lightning:button label="New Case" />
+    <lightning:button label="New Note" />
+     <lightning:button label="Submit Approval"  />
+    </lightning:buttongroup>-->
+	
+</aura:component>

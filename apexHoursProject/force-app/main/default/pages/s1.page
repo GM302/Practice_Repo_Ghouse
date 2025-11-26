@@ -1,0 +1,29 @@
+<apex:page >
+    <!--
+    
+<lightning:card title="State Regulatory Notifications" class="slds-m-top_medium">
+
+    
+    <lightning:input type="checkbox" label="A" value="{!v.credentialingRequest.A__c}" onchange="{!c.handleCheckboxChange}" />
+    <lightning:input type="date" value="{!v.credentialingRequest.a__c}" aura:id="aDate" class="hidden-label" required="{!v.credentialingRequest.A__c}" />
+
+   
+    <lightning:input type="checkbox" label="B" value="{!v.credentialingRequest.B__c}" onchange="{!c.handleCheckboxChange}" />
+    <lightning:input type="date" value="{!v.credentialingRequest.b__c}" aura:id="bDate" class="hidden-label" required="{!v.credentialingRequest.B__c}" />
+
+    
+    <lightning:input type="checkbox" label="C" value="{!v.credentialingRequest.C__c}" onchange="{!c.handleCheckboxChange}" />
+    <lightning:input type="date" value="{!v.credentialingRequest.c__c}" aura:id="cDate" class="hidden-label" required="{!v.credentialingRequest.C__c}" />
+
+    
+    <lightning:input type="checkbox" label="D" value="{!v.credentialingRequest.D__c}" onchange="{!c.handleCheckboxChange}" />
+    <lightning:input type="date" value="{!v.credentialingRequest.d__c}" aura:id="dDate" class="hidden-label" required="{!v.credentialingRequest.D__c}" />
+
+</lightning:card>
+-->
+    <!--
+.THIS .hidden-label label {
+    display: none;
+}
+-->
+</apex:page>

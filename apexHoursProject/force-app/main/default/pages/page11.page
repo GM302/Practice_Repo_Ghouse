@@ -1,0 +1,273 @@
+<apex:page >
+  <!--  public class PDMS_CRED_Bulk_Approval_QM_Controller {
+    
+    @AuraEnabled
+    public static List<PDMS_Credentialing_Request__c> getCredReq(String region){
+        List<PDMS_Credentialing_Request__c> credList = new List<PDMS_Credentialing_Request__c>();
+        
+        
+        if(String.isBlank(region)){
+            credList = [SELECT id,name,PDMS_Cred_type_code__c,createdDate, PDMS_Region__c, PDMS_Provider__r.Name ,PDMS_EPDB_PIN__c,PDMS_Degree__c,PDMS_Step_Status__c,PDMS_Product_Type__c,
+                    PDMS_Project_Tag__c,PDMS_Site_Tag__r.Name,PDMS_Application_Received_Date__c,PDMS_Specialty__c,PDMS_Provider_Type__c,PDMS_Role_Requested__c,PDMS_Provider_Last_Name__c,
+                    PDMS_Provider_First_Name__c,PDMS_Provider_Middle_Name__c,PDMS_NPI__c,
+                    PDMS_Override_CPC_Date__c,PDMS_Scheduled_CPC_Date__c FROM PDMS_Credentialing_Request__c 
+                    WHERE PDMS_Step_Status__c = 'Ready for Review'];
+        }else{
+            credList = [SELECT id,name,PDMS_Cred_type_code__c,createdDate, PDMS_Region__c, PDMS_Provider__r.Name ,PDMS_EPDB_PIN__c,PDMS_Degree__c,PDMS_Step_Status__c,PDMS_Product_Type__c,
+                    PDMS_Project_Tag__c,PDMS_Site_Tag__r.Name,PDMS_Application_Received_Date__c,PDMS_Specialty__c,PDMS_Provider_Type__c,PDMS_Role_Requested__c,PDMS_Provider_Last_Name__c, 
+                    PDMS_Provider_First_Name__c,PDMS_Provider_Middle_Name__c,PDMS_NPI__c,
+                    PDMS_Override_CPC_Date__c,PDMS_Scheduled_CPC_Date__c FROM PDMS_Credentialing_Request__c 
+                    WHERE PDMS_Step_Status__c = 'Ready for Review' AND PDMS_Region__c =:region];
+        }
+
+        Map<String, List<PDMS_Credentialing_PQOC_Report__c>> pqocMap = new Map<String, List<PDMS_Credentialing_PQOC_Report__c>>();
+        Set<String> epdbPINSet = new Set<String>();
+        Map<Double, String> epdbNPIMap = new Map<Double, String>();
+        for(PDMS_Credentialing_Request__c eachCR : credList){
+            epdbPINSet.add(eachCR.PDMS_EPDB_PIN__c);
+            if(eachCR.PDMS_NPI__c!=null){
+                epdbNPIMap.put(Double.valueof(eachCR.PDMS_NPI__c),eachCR.PDMS_EPDB_PIN__c);
+            }
+        }
+        for(PDMS_Credentialing_PQOC_Report__c pqocRec : [select Id,PDMS_Date_Closed__c,PDMS_NPI__c, PDMS_Final_Case_Disposition__c,PDMS_EPDB_PIN__c,
+                                                                   PDMS_IND_Description__c from PDMS_Credentialing_PQOC_Report__c
+                                                                   where PDMS_NPI__c = : epdbNPIMap.keySet() limit 50000]){
+            List<PDMS_Credentialing_PQOC_Report__c> pqocRecList;
+            String epdbPIN;
+            if(pqocRec.PDMS_EPDB_PIN__c==null){
+                epdbPIN= String.valueOf(epdbNPIMap.get(pqocRec.PDMS_NPI__c));
+            }else{
+                epdbPIN=pqocRec.PDMS_EPDB_PIN__c;
+            }                                                              
+            if(!pqocMap.containsKey(epdbPIN)){
+                pqocRecList = new List<PDMS_Credentialing_PQOC_Report__c>();
+                pqocRecList.add(pqocRec);
+            }
+            else{
+                pqocRecList = pqocMap.get(epdbPIN);
+                pqocRecList.add(pqocRec);
+            }
+            pqocMap.put(epdbPIN, pqocRecList);
+        }
+         
+
+        for (PDMS_Credentialing_Request__c eachCR : credList){
+            
+                List<PDMS_Credentialing_PQOC_Report__c> pqocList = new List<PDMS_Credentialing_PQOC_Report__c>();
+                if(pqocMap.containsKey(eachCR.PDMS_EPDB_PIN__c)){
+                    pqocList =  pqocMap.get(eachCR.PDMS_EPDB_PIN__c) ;
+                }
+                if(pqocList.size() > 1 ){
+                    String indDesc = '';
+                    for (PDMS_Credentialing_PQOC_Report__c eachPQOC : pqocList){
+                        
+                        indDesc = indDesc + 'DT_CLOSED: ' + eachPQOC.PDMS_Date_Closed__c.format() +
+                                  '\n FINAL_CASE_DISPOSITION: ' + eachPQOC.PDMS_Final_Case_Disposition__c +
+                                  '\n IND_DESCRIPTION: ' + eachPQOC.PDMS_IND_Description__c +  '\n\n';
+                    }
+                    eachCR.PDMS_IND_DESCRIPTION__c = indDesc;    
+                } else if(pqocList.size() == 1 ){ eachCR.PDMS_IND_DESCRIPTION__c = 'DT_CLOSED: ' + pqocList[0].PDMS_Date_Closed__c.format() + '\n FINAL_CASE_DISPOSITION: ' + pqocList[0].PDMS_Final_Case_Disposition__c + '\n IND_DESCRIPTION: ' + pqocList[0].PDMS_IND_Description__c;
+                } else if(pqocList.size() < 1 ){       
+                    eachCR.PDMS_IND_DESCRIPTION__c = 'DT_CLOSED: \n FINAL_CASE_DISPOSITION: No Performance \n IND_DESCRIPTION: No Performance' ;
+                }
+            
+        }
+        return credList;
+        
+    }
+
+    @AuraEnabled
+    public static string getUserInfo(String recordId){
+        String userData = '';
+        List<PDMS_Credentialing_Request__c> credReqList =[Select Id,Name,OwnerId  from PDMS_Credentialing_Request__c where id=:recordId  limit 1];
+        if(!credReqList.isEmpty()){ 
+            userData = PDMS_CNTRL_CredReopen.getPrevOwnerInfo(recordId, string.valueOf(credReqList[0].ownerId), 'QM Section');
+        }
+         return userData;
+    }
+
+    @AuraEnabled
+    public static void updateFIQueueInfo(String recordId, String queueId){
+        PDMS_CRED_ReqFrameworkController.updateQueueInfo(recordId, 'QM Section', queueId, '', '');
+    }
+    
+    @AuraEnabled
+    public static List<String> getAllRegion(){
+        List<String> region_list = new List<String>{'Northeast Region', 'Mid Atlantic Region','Southeast Region','North Mountain Region','South Central Region','West Region'};
+            return region_list;
+    }   
+    
+    @AuraEnabled
+    public static void updateCredReq(String recordIds, String stepStatus){
+         Type idArrType = Type.forName('List<string>');
+        //String credSpecialty = '';
+        List<string> credIds = (List<string>) JSON.deserialize(recordIds, idArrType);
+        List<PDMS_Credentialing_Request__c> cr_list =  new List<PDMS_Credentialing_Request__c>();
+        Map<Id,String> credSpecialtyMap = new Map<Id,String>();
+        
+        List<PDMS_Credentialing_Request__c> creq_list =  new List<PDMS_Credentialing_Request__c>();
+        if(!test.isRunningTest()){ creq_list = [select id,name,createdDate,PDMS_Product_Type__c,PDMS_Override_CPC_Date__c,PDMS_Scheduled_CPC_Date__c,PDMS_External_ID__c from PDMS_Credentialing_Request__c where Id IN :credIds and PDMS_Step_Status__c = 'Ready for Review'];         
+        }else{
+            creq_list = [select id,name,createdDate,PDMS_Product_Type__c,PDMS_Override_CPC_Date__c,PDMS_Scheduled_CPC_Date__c,PDMS_External_ID__c from PDMS_Credentialing_Request__c where Id IN :credIds];  
+        }
+
+        for(PDMS_Credentialing_Request_Step_Attribut__c crs : [Select Id,PDMS_Specialty_Code__c,PDMS_Credentialing_Req_Step__r.PDMS_Credentialing_Request__c from PDMS_Credentialing_Request_Step_Attribut__c where 
+                                                                    PDMS_Credentialing_Req_Step__r.PDMS_Credentialing_Request__c = :credIds and PDMS_Verify__c = true and recordType.DeveloperName='PDMS_PSV_Board_Certification' ]){
+
+            if(!credSpecialtyMap.containsKey(crs.PDMS_Credentialing_Req_Step__r.PDMS_Credentialing_Request__c)){
+                credSpecialtyMap.put(crs.PDMS_Credentialing_Req_Step__r.PDMS_Credentialing_Request__c , crs.PDMS_Specialty_Code__c); 
+            }
+            else{
+                String credSpecialty = credSpecialtyMap.get(crs.PDMS_Credentialing_Req_Step__r.PDMS_Credentialing_Request__c);
+                credSpecialty += crs.PDMS_Specialty_Code__c;
+                credSpecialtyMap.put(crs.PDMS_Credentialing_Req_Step__r.PDMS_Credentialing_Request__c , credSpecialty);    
+            }                                                                
+        }
+        
+        for(PDMS_Credentialing_Request__c credReq : creq_list){
+            
+            /*List<PDMS_Credentialing_Request_Step_Attribut__c> specialtyList = [Select PDMS_Specialty_Code__c from PDMS_Credentialing_Request_Step_Attribut__c where 
+                                                                              PDMS_Credentialing_Req_Step__r.PDMS_Credentialing_Request__c = :credReq.Id and PDMS_Verify__c = true];
+            
+            for(PDMS_Credentialing_Request_Step_Attribut__c specList : specialtyList){
+                if(specList.PDMS_Specialty_Code__c != null){
+                    credSpecialty = credSpecialty + specList.PDMS_Specialty_Code__c;
+                }
+            }*/
+            
+            credReq.PDMS_Update_EPDB_Specialty__c = credSpecialtyMap.containsKey(credReq.Id) ? credSpecialtyMap.get(credReq.Id) : null;
+            if(credReq.PDMS_Product_Type__c != 'Medicaid'){
+            credReq.PDMS_Credentialing_Source_Code__c = 'A';
+                 }
+            if (stepStatus == 'Approved'){
+                credReq.PDMS_Update_Cred_Source_Code_Status__c = 'A';
+            } else if(stepStatus == 'Denied'){ 
+                credReq.PDMS_Update_Cred_Source_Code_Status__c = 'R';
+            }    
+            credReq.PDMS_Step_Status__c = stepStatus;
+            credReq.PDMS_Status__c = 'Completed';
+            credReq.PDMS_Completed_Date__c = Date.today();
+            credReq.PDMS_Completed_By__c = UserInfo.getUserId();
+            if (credReq.PDMS_Override_CPC_Date__c !=null){
+                credReq.PDMS_CPCDetermination_Date__c = credReq.PDMS_Override_CPC_Date__c;
+            } else{
+                credReq.PDMS_CPCDetermination_Date__c = credReq.PDMS_Scheduled_CPC_Date__c; 
+                credReq.PDMS_Override_CPC_Date__c = credReq.PDMS_Scheduled_CPC_Date__c;
+            }
+            if(credReq.PDMS_External_ID__c != null){
+                 credReq.PDMS_External_ID__c =  credReq.PDMS_External_ID__c + Datetime.now().format('yyyy-MM-dd');  
+            }
+            //credReq.PDMS_CPCDetermination_Date__c = Date.today();
+            cr_list.add(credReq);
+        }
+        if(!cr_list.isEmpty()){
+            update cr_list;
+        }
+        System.debug('cr_list::'+recordIds);        
+    }
+    
+    /* @AuraEnabled
+    public Static String getCredStatus(String recordId)
+    {
+        PDMS_Credentialing_Request__c credReq=[Select Name, PDMS_Step_Status__c   from PDMS_Credentialing_Request__c where id=:recordId limit 1];
+        return credReq.PDMS_Step_Status__c;    
+    }*/
+    
+    @AuraEnabled
+    public Static PDMS_Credentialing_Request__c getCredStatus(String recordId)
+    {
+        PDMS_Credentialing_Request__c credReq=[Select Name, PDMS_Step_Status__c,PDMS_NPI__c,PDMS_EPDB_PIN__c,PDMS_IND_DESCRIPTION__c   from PDMS_Credentialing_Request__c where id=:recordId limit 1];
+        if (credReq.PDMS_NPI__c != null) {
+       // system.debug('Argument '+Double.valueof(credReq.PDMS_NPI__c));
+        List<PDMS_Credentialing_PQOC_Report__c> pqocList = [select PDMS_Date_Closed__c, PDMS_Final_Case_Disposition__c,
+                                                                   PDMS_IND_Description__c from PDMS_Credentialing_PQOC_Report__c
+                                                                   where PDMS_NPI__c =: Double.valueof(credReq.PDMS_NPI__c) ];
+        
+                if(pqocList.size() > 1 ){
+                    String indDesc = '';
+                    for (PDMS_Credentialing_PQOC_Report__c eachPQOC : pqocList){
+                       
+                        indDesc = indDesc + 'DT_CLOSED: ' + eachPQOC.PDMS_Date_Closed__c.format() +
+                                  '\n FINAL_CASE_DISPOSITION: ' + eachPQOC.PDMS_Final_Case_Disposition__c +
+                                  '\n IND_DESCRIPTION: ' + eachPQOC.PDMS_IND_Description__c +  '\n\n';
+                    }
+                    credReq.PDMS_IND_DESCRIPTION__c = indDesc;    
+                } else if(pqocList.size() == 1 ){
+                    credReq.PDMS_IND_DESCRIPTION__c = 'DT_CLOSED: ' + pqocList[0].PDMS_Date_Closed__c.format() +
+                                                     '\n FINAL_CASE_DISPOSITION: ' + pqocList[0].PDMS_Final_Case_Disposition__c +
+                                                     '\n IND_DESCRIPTION: ' + pqocList[0].PDMS_IND_Description__c;
+                } else if(pqocList.size() < 1 ){      
+                    credReq.PDMS_IND_DESCRIPTION__c = 'DT_CLOSED: \n FINAL_CASE_DISPOSITION: No Performance \n IND_DESCRIPTION: No Performance' ;
+         }
+        }
+        
+        return credReq;    
+    }
+    
+    @AuraEnabled
+    public static String getRoleInfo(){
+        String roleId = UserInfo.getUserRoleId();
+        UserRole RoleVal = [SELECT Id, Name,DeveloperName FROM UserRole WHERE Id =:Id.ValueOf(roleId)];
+         return RoleVal.DeveloperName;
+    }
+    @AuraEnabled
+    public static void updateStepStatus(String recordId){
+        PDMS_Credentialing_Request__c crReq = [Select Name, PDMS_Step_Status__c,PDMS_Override_CPC_Date__c   from PDMS_Credentialing_Request__c where id=:recordId limit 1];
+        if(crReq.PDMS_Step_Status__c=='PSV Complete'){
+            crReq.PDMS_Step_Status__c='PSV/Business Review';
+        }
+        else if(crReq.PDMS_Step_Status__c=='Further Investigation Complete'){
+            crReq.PDMS_Step_Status__c='Further Investigation';
+        }
+        crReq.PDMS_Override_CPC_Date__c = null;
+        update crReq;
+    }
+    @AuraEnabled
+    public static void updateEPDBCredSourceCode(String recordIds){
+        EPDBUpdate(recordIds);
+
+    }
+    
+        //1914816- Cred Source API from Sync to Async - QM Screen 
+        //This method is used to update EPDB on change of the status of cred request to Completed
+        @future(Callout=true)
+        public static void EPDBUpdate(String recordIds){
+        List<PDMS_Credentialing_Request__c> credReq = new List<PDMS_Credentialing_Request__c>();
+        Type idArrType = Type.forName('List<string>');
+        List<string> credIds = (List<string>) JSON.deserialize(recordIds, idArrType);
+        String result = '';
+        String credOutput = null;
+        for (PDMS_Credentialing_Request__c eachCredReq : [Select Id, PDMS_EPDB_Cred_Source_Updated__c,PDMS_Product_Type__c,PDMS_Credentialing_Source_Code__c
+                                                            FROM PDMS_Credentialing_Request__c WHERE Id = : credIds]){
+
+            if(!test.isRunningTest()){
+               if(((eachCredReq.PDMS_Product_Type__c == 'Medicaid') && (eachCredReq.PDMS_Credentialing_Source_Code__c != 'D' && eachCredReq.PDMS_Credentialing_Source_Code__c != 'C' && eachCredReq.PDMS_Credentialing_Source_Code__c != 'P')) || (eachCredReq.PDMS_Product_Type__c != 'Medicaid')){
+                    credOutput = PDMS_Cred_SourceCodeDetails.getCredSourceDetailsResponse(String.valueOf(eachCredReq.Id));
+                }
+           }else{
+                  credOutput = '1 - SUCCESS TEST';
+           } 
+            
+           if(credOutput!=null){ 
+            List<String> flag = credOutput.split(' - ', 2);
+            System.debug('flag[1]::'+flag[1]);
+            if (flag[1] == 'SUCCESS'){ eachCredReq.PDMS_EPDB_Cred_Source_Updated__c = true;
+                                       //eachCredReq.Id = eachCR;
+                                       credReq.add(eachCredReq);
+            } else {
+                eachCredReq.PDMS_EPDB_Cred_Source_Updated__c = false;
+                eachCredReq.PDMS_EPDB_Cred_Source_Code_Update_Error__c = flag[1];
+                //eachCredReq.Id = eachCR;
+                credReq.add(eachCredReq);
+            }
+            result = result + '\n' + credOutput ;
+            credOutput=null;
+        }
+        }
+         if(credReq.size() > 0){
+            update credReq;
+        }
+     }
+       
+}-->
+</apex:page>

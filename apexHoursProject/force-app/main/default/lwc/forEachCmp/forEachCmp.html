@@ -1,0 +1,25 @@
+<template>
+
+<template if:true={oppList}>
+
+     <lightning-datatable
+        key-field="id"
+        data={oppList}
+        show-row-number-column
+        row-number-offset={rowOffset}
+        hide-checkbox-column
+        columns={columns}
+        onrowaction={handleRowAction}>
+    </lightning-datatable>
+
+
+</template>
+   
+
+    
+
+
+    
+
+
+</template>

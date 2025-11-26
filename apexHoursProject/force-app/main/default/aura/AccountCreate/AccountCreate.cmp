@@ -1,0 +1,29 @@
+<aura:component controller="AccountInsert" >
+    
+    <!--<aura:attribute name="name" type="string"/>
+    <aura:attribute name="phone" type="string"/>
+    <aura:attribute name="fax" type="string"/>
+    -->
+    
+     <aura:attribute name="result" type="string"/>
+    <aura:attribute name="acc" type="Account" default="{sObjectType:'Account'}"/>
+    
+    <lightning:card title="Account Creation" iconName="standard:account" class="box">
+    
+    <lightning:input label = "Enter Name" value="{!v.acc.name}"/>
+    <lightning:input label = "Enter Phone" value="{!v.acc.phone}"/>
+    <lightning:input label = "Enter fax" value="{!v.acc.fax}"/>
+        
+        <aura:set attribute ="actions">
+              <lightning:button label="submit" onclick="{!c.save}"/>      
+  
+        </aura:set>
+      </lightning:card>   
+   
+       
+ Result: {!v.result}
+
+   
+    
+	
+</aura:component>

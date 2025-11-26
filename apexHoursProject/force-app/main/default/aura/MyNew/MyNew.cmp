@@ -1,0 +1,11 @@
+<aura:component implements="force:appHostable" >
+    
+    <aura:attribute name="val1" type="string" default="Ghouse"/>
+   
+    <lightning:button label="Clickme" onclick="{!c.callme}" variant="base"/>
+    
+    
+     Helooo: {!v.name}
+    
+    
+</aura:component>

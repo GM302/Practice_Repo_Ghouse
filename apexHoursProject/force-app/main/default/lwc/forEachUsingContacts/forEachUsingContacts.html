@@ -1,0 +1,19 @@
+<template>
+
+    <lightning-card  variant="Narrow"  title="Hello" icon-name="standard:account" class="myfont">
+
+        <b class="myTitle"> For Each contacts</b>
+
+        <template for:each={contacts}   for:item="con">
+
+            <div key={con.Id} class="mypad">
+                contact id : {con.Id}<br/>
+                contact name : {con.Name}<br/>
+                contact phone : {con.phone}
+            </div>
+
+        </template>
+       
+    </lightning-card>
+
+</template>

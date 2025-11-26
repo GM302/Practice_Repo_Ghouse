@@ -1,0 +1,7 @@
+<aura:component >
+    <aura:registerEvent name="first" type="c:TestEvent"/><p></p>
+    
+    
+    Child componet.<p></p>
+    <lightning:button label="save" onclick="{!c.callme}"/><p></p>
+</aura:component>

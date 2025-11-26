@@ -1,0 +1,20 @@
+<aura:component >
+    
+    <aura:attribute name="val1" type="string" />
+    
+    
+    <aura:attribute name="accRec" type="Account" default="{'sobjectType':'Account', 'Name':'Ghouse'}"/>
+    
+    <aura:attribute name="sobj" type="object"/>
+    
+    <aura:attribute name="wraperdata" type="myWrapper.myWrapperinner"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.callme}"/>
+    
+ 
+    {!v.val1}
+    {!v.accRec.Name}
+    {!v.sobj.Name} ---{!v.sobj.Email} 
+    {!v.wraperdata.mystrname} -- {!v.wraperdata.myintsalary}
+	
+</aura:component>

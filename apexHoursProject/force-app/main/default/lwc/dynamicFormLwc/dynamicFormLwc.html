@@ -1,0 +1,13 @@
+<template>
+
+        <lightning-combobox label="Dynamic Form" value={selectedform} options={selectedformoptions} onchange={handlechange}></lightning-combobox>
+
+        <template if:true={showName}>
+           <lightning-input label="Name"></lightning-input>
+        </template>
+
+        <template if:true={showEmail}>
+            <lightning-input label="Email"></lightning-input>
+         </template>
+    
+</template>

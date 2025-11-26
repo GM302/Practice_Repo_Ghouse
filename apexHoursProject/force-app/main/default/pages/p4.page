@@ -1,0 +1,42 @@
+<apex:page >
+    <!--
+    @isTest
+public class CredentialingRequestControllerTest {
+
+    @isTest
+    static void testSaveCredentialingRequest() {
+        // Create a mock Credentialing Request record
+        Credentialing_Request__c testRequest = new Credentialing_Request__c(
+            A__c = true,
+            a__c = Date.today(),
+            B__c = false,
+            C__c = false,
+            D__c = false
+        );
+
+        // Call the controller method
+        Test.startTest();
+        CredentialingRequestController.saveCredentialingRequest(testRequest);
+        Test.stopTest();
+
+        // Query the record to assert it was saved
+        Credentialing_Request__c saved = [SELECT Id, A__c, a__c FROM Credentialing_Request__c WHERE Id = :testRequest.Id];
+        System.assertNotEquals(null, saved);
+        System.assertEquals(true, saved.A__c);
+        System.assertEquals(Date.today(), saved.a__c);
+    }
+
+    @isTest
+    static void testSaveNullInput() {
+        Test.startTest();
+        try {
+            CredentialingRequestController.saveCredentialingRequest(null);
+            System.assert(false, 'Expected AuraHandledException for null input');
+        } catch (AuraHandledException e) {
+            System.assertEquals('Credentialing Request cannot be null.', e.getMessage());
+        }
+        Test.stopTest();
+    }
+}
+-->
+</apex:page>

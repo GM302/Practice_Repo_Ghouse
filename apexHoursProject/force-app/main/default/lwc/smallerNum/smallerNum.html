@@ -1,0 +1,19 @@
+<template>
+
+    <lightning-card  variant="Narrow"  title="Smaller Number" icon-name="standard:account">
+
+        <lightning-input type="text" variant="standard" name="f1" label="First Number" placeholder="type here..." value={fNum} onchange={handleChangeData}></lightning-input>
+        <lightning-input type="text" variant="standard" name="s1" label="Second Number" placeholder="type here..." value={sNum} onchange={handleChangeData}></lightning-input>
+        <lightning-input type="text" variant="standard" name="t1" label="Third Number" placeholder="type here..." value={tNum} onchange={handleChangeData}></lightning-input>
+
+        <lightning-button-group>
+            <lightning-button label="Calulate" onclick={handleCalulate}></lightning-button>
+            <lightning-button label="Clear" onclick={handleClear}></lightning-button>
+            
+        </lightning-button-group>
+
+
+        
+    </lightning-card>
+
+</template>

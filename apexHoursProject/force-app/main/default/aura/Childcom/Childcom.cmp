@@ -1,0 +1,9 @@
+<aura:component >
+    
+    <aura:attribute name="childvar" type="string"/>
+    
+   child: {!v.childvar}<p></p>
+    
+    <lightning:button label="child disp" onclick="{!c.chilbutton}"/><p></p>
+	
+</aura:component>

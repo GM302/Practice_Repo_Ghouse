@@ -1,0 +1,17 @@
+<template>
+
+    <lightning-card  variant="Narrow"  title="Greater Number" icon-name="standard:account">
+
+        <lightning-input type="text" variant="standard" label="First Number" onchange={handlechnageData} value={fNumberLocal} name="f1"></lightning-input>
+        <lightning-input type="text" variant="standard" label="Second Number" onchange={handlechnageData} value={sNumberLocal} name="s1"></lightning-input>
+        <lightning-input type="text" variant="standard" label="Third Number" onchange={handlechnageData} value={tNumberLocal} name="t1"></lightning-input>
+
+        <lightning-button-group>
+            <lightning-button variant="brand" label="Calculate" title="titleName" onclick={handleCalculate}></lightning-button>&nbsp;&nbsp;
+            <lightning-button variant="brand" label="Clear" title="titleName" onclick={handleClear}></lightning-button>
+        </lightning-button-group>
+
+       
+    </lightning-card>
+
+</template>

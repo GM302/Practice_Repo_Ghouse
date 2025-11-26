@@ -1,0 +1,32 @@
+<aura:component >
+    
+    <aura:attribute name = "enterP" type="decimal"/>
+    <aura:attribute name = "rateInterest" type="decimal"/> 
+    <aura:attribute name = "term" type="decimal"/>
+    <aura:attribute name = "interest" type="decimal"/>
+    <aura:attribute name = "meturityAmount" type="decimal"/>
+    
+    
+    
+    <lightning:card title="Interest Calculator" iconName="standard:account">
+        
+        <aura:set attribute="actions">
+            
+            <lightning:button label="SI" onclick="{!c.simple}" variant="brand"/>   
+            <lightning:button label="CI" onclick="{!c.cominterest}" variant="base"/>  
+            <lightning:button label="Clear" onclick="{!c.clear}" variant="success"/>  
+        
+        </aura:set>
+    
+        <lightning:input label ="EnterP"  value ="{!v.enterP}"/>
+        <lightning:input label ="RateInterest"  value ="{!v.rateInterest}"/>
+        <lightning:input label ="Term"  value ="{!v.term}" />
+        <lightning:input label ="Interest" value ="{!v.interest}"/>
+        <lightning:input label ="MeturityAmount"  value ="{!v.meturityAmount}"/>
+
+
+
+    
+    </lightning:card>
+	
+</aura:component>

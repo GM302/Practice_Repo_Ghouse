@@ -1,0 +1,34 @@
+<apex:page >
+    <!--
+    public class ProviderChangeRequestHandler {
+    
+    public static void updateCaseOwnerForRosterConfirmation(List<Provider_Change_Request__c> newList, Map<Id, Provider_Change_Request__c> oldMap) {
+        Set<Id> caseIdsToUpdate = new Set<Id>();
+        
+        for (Provider_Change_Request__c pcr : newList) {
+            Provider_Change_Request__c oldPcr = oldMap.get(pcr.Id);
+            
+            if (pcr.PDS_Status__c == 'Roster Confirmation' &&
+                oldPcr.PDS_Status__c != 'Roster Confirmation' &&
+                pcr.Case__c != null) {
+                caseIdsToUpdate.add(pcr.Case__c);
+            }
+        }
+        
+        if (!caseIdsToUpdate.isEmpty()) {
+            // Fetch the Roster Automation Queue (Group)
+            Group queue = [SELECT Id FROM Group WHERE Type = 'Queue' AND Name = 'Roster Automation Queue' LIMIT 1];
+
+            // Get the related Cases
+            List<Case> casesToUpdate = [SELECT Id FROM Case WHERE Id IN :caseIdsToUpdate];
+
+            for (Case c : casesToUpdate) {
+                c.OwnerId = queue.Id;
+            }
+
+            update casesToUpdate;
+        }
+    }
+}
+-->
+</apex:page>

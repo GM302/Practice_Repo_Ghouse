@@ -1,0 +1,66 @@
+<apex:page >
+    <!--
+    <aura:component controller="CredentialingRequestController"
+                implements="flexipage:availableForAllPageTypes,force:appHostable"
+                access="global">
+
+   
+    <aura:attribute name="credRequest" type="Credentialing_Request__c" default="{'sobjectType':'Credentialing_Request__c'}" />
+
+    <lightning:card title="Credentialing Request Form">
+      
+        <div class="slds-grid slds-wrap">
+            <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small">
+                <lightning:input type="checkbox" label="A" name="A__c"
+                    value="{!v.credRequest.A__c}" />
+            </div>
+            <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small">
+                <lightning:input type="date" label="Date A" name="a__c"
+                    value="{!v.credRequest.a__c}" />
+            </div>
+        </div>
+
+      
+        <div class="slds-grid slds-wrap">
+            <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small">
+                <lightning:input type="checkbox" label="B" name="B__c"
+                    value="{!v.credRequest.B__c}" />
+            </div>
+            <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small">
+                <lightning:input type="date" label="Date B" name="b__c"
+                    value="{!v.credRequest.b__c}" />
+            </div>
+        </div>
+
+        
+        <div class="slds-grid slds-wrap">
+            <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small">
+                <lightning:input type="checkbox" label="C" name="C__c"
+                    value="{!v.credRequest.C__c}" />
+            </div>
+            <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small">
+                <lightning:input type="date" label="Date C" name="c__c"
+                    value="{!v.credRequest.c__c}" />
+            </div>
+        </div>
+
+      
+        <div class="slds-grid slds-wrap">
+            <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small">
+                <lightning:input type="checkbox" label="D" name="D__c"
+                    value="{!v.credRequest.D__c}" />
+            </div>
+            <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small">
+                <lightning:input type="date" label="Date D" name="d__c"
+                    value="{!v.credRequest.d__c}" />
+            </div>
+        </div>
+
+       
+        <div class="slds-m-top_medium slds-p-horizontal_small">
+            <lightning:button label="Save" onclick="{!c.doSave}" variant="brand"/>
+        </div>
+    </lightning:card>
+</aura:component>
+-->
+</apex:page>

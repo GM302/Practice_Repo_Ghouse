@@ -1,0 +1,21 @@
+<template>
+
+    <lightning-card title="Display">
+
+        Hello , {myname} ! <p></p>
+        your MObile Number: {myphone} <p></p>
+        your email id : {myemail} <p></p>
+
+        Thank you !!! <p></p>
+
+        <lightning-input label="Name" value={myname} name="nam"></lightning-input>
+        <lightning-input label="Phone" value={myphone} name="phn"></lightning-input>
+        <lightning-input label="Email" value={myemail} name="eml"></lightning-input>
+
+    
+      <lightning-button label="submit" onclick={handleClick}> </lightning-button>
+
+
+    </lightning-card>
+
+</template>

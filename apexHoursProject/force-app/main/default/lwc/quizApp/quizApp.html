@@ -1,0 +1,34 @@
+<template>
+    <lightning-card title="Quiz App">
+        <div class="slds-var-m-around__medium">
+
+           <template for:each={allquestions} for:item="quiz">
+             <div key={quiz.id}>
+
+                <div> {quiz.id} - {quiz.question}</div>
+
+                <div class="slds-grid slds-gutters">
+                    <div class="slds-col">
+                        <input type="radio" name={quiz.id} value="a" onchange={handleChange}/>
+                        {quiz.answers.a}
+                    </div>
+                    <div class="slds-col">
+                         <input type="radio" name={quiz.id} value="b" onchange={handleChange}/>
+                           {quiz.answers.b}
+                    </div>
+                    <div class="slds-col">
+                         <input type="radio" name={quiz.id} value="c" onchange={handleChange}/>
+                           {quiz.answers.c}
+                    </div>
+                    </div>
+
+
+             </div>
+
+           </template>
+
+        </div>
+
+    </lightning-card>
+
+</template>

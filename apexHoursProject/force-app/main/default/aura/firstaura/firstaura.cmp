@@ -1,0 +1,11 @@
+<aura:component>
+
+<lightning:card title="Firstcom" iconName="standard:account">
+
+<lightning:button label="submit" onclick="{!c.callme}"/>
+
+
+
+</lightning:card>
+
+</aura:component>

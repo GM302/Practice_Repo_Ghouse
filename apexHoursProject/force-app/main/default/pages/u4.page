@@ -1,0 +1,28 @@
+<apex:page >
+    <!--
+    public with sharing class CredentialingRequestController {
+
+    @AuraEnabled
+    public static String saveCredentialingRequest(Credentialing_Request__c credRequest) {
+        // Server-side validation
+        if(credRequest.A__c && credRequest.a__c == null) {
+            throw new AuraHandledException('Date A is required when A is selected.');
+        }
+        if(credRequest.B__c && credRequest.b__c == null) {
+            throw new AuraHandledException('Date B is required when B is selected.');
+        }
+        if(credRequest.C__c && credRequest.c__c == null) {
+            throw new AuraHandledException('Date C is required when C is selected.');
+        }
+        if(credRequest.D__c && credRequest.d__c == null) {
+            throw new AuraHandledException('Date D is required when D is selected.');
+        }
+
+        // Save the record (optional – for now just simulate)
+        insert credRequest;
+
+        return 'Credentialing Request saved successfully.';
+    }
+}
+-->
+</apex:page>

@@ -1,0 +1,48 @@
+<template>
+
+<lightning-card title="Collection ForEach" icon-name="standard:account">
+
+    <template for:each = {cities} for:item= "ct">
+
+        <p key={ct}>{ct}</p>
+
+    </template>
+     
+</lightning-card>
+
+
+<lightning-card title="Collection Iterator" icon-name="standard:account">
+
+    <template iterator:it = {cities}>
+
+        <p key={it.value}>{it.value}</p>
+
+    </template>
+     
+</lightning-card>
+
+<lightning-card title="Collection ForEach" icon-name="standard:account">
+
+    <template for:each = {students} for:item="std">
+
+        <p key={std.id}>{std.name}</p>
+         <p key={std.id}>{std.city}</p>
+          <p key={std.id}>{std.Age}</p>
+
+    </template>
+     
+</lightning-card>
+
+<lightning-card title="Single Record" icon-name="standard:account">
+
+    {student.name}<p></p>
+    {student.college}<p></p>
+       
+  
+     
+</lightning-card>
+
+
+
+
+</template>

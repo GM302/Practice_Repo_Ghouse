@@ -1,0 +1,62 @@
+<aura:component >
+    
+      
+    
+  <!--  <lightning:button label="Follow" iconName="utility:add" variant="Neutral" onclick="{!c.callme}"/>
+    
+    <lightning:buttonGroup>
+    <lightning:button label="New Contact"   />
+    <lightning:button label="New Case" />
+    <lightning:button label="New Note" />
+    </lightning:buttonGroup>
+    
+   <lightning:buttonIcon iconName="utility:settings" variant="bare" onclick="{! c.handleClick }" alternativeText="Settings" title="Settings" />
+    <lightning:buttonIcon iconName="utility:settings" variant="bare" onclick="{! c.handleClick }" disabled="false" alternativeText="Settings (disabled)" title="Settings (disabled)" />
+-->
+    <aura:attribute name="title" type="string"/>
+    <aura:attribute name="company" type="string"/>
+    <aura:attribute name="phone" type="string"/>
+    <aura:attribute name="email" type="string"/>
+    
+    
+    
+  <lightning:card iconName="standard:lead">
+        
+    <aura:set attribute ="actions">
+          <lightning:button label="Submit"  variant="Neutral" onclick="{!c.callme}"/> 
+         <lightning:button label="clear"  variant="Neutral" onclick="{!c.clearme}"/> 
+       <lightning:buttonGroup>
+                <lightning:button label="New Case"   />
+                <lightning:button label="New Note" />
+                <lightning:button label="Submit for Approval" />
+        <lightning:buttonMenu alternativeText ="Menu">
+              <lightning:menuItem label="clone" value="clone"/>
+              <lightning:menuItem label="delete" value="del"/>
+              <lightning:menuItem label="Edit" value="edit"/>
+        </lightning:buttonMenu>
+    </lightning:buttonGroup>
+        
+  </aura:set>
+      
+      <aura:set attribute ="title">
+          
+          Lead<p></p>
+          <b>Ghouse</b>
+      
+      
+      </aura:set>
+      Title: {!v.title} <br/>
+      Company:{!v.company}<br/>
+      Phone:{!v.phone}<br/>
+      Email: {!v.email}<br/>     
+    
+ </lightning:card>
+    
+   
+    
+      
+    
+   
+    
+	
+</aura:component>

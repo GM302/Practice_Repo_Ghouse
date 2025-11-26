@@ -1,0 +1,17 @@
+<template>
+    
+    <lightning-card title="Track Name">
+
+        <lightning-input name="firstname" label="First Name" onchange={handleChamge}></lightning-input>
+        <lightning-input name="lastname" label="Last Name" onchange={handleChamge}></lightning-input>
+
+    </lightning-card>
+
+    <lightning-card title="Track Name update">
+
+
+      <b>  update Fname : {fullName.firstname} </b> <br/>
+      <b>  update Lname : {fullName.lastname} </b>
+        
+    </lightning-card>
+</template>

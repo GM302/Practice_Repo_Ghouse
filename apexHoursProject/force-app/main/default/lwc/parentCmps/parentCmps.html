@@ -1,0 +1,12 @@
+<template>
+    <lightning-card  variant="Narrow"  title="parent cmp" icon-name="standard:account">
+
+        <div>
+            <lightning-input label="Enter name" value={parentTitle} onchange={handleChange}></lightning-input>
+        </div>
+       <c-child-cmps my-title={parentTitle}>
+
+       </c-child-cmps>
+    </lightning-card>
+
+</template>

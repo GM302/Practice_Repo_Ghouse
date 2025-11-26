@@ -1,0 +1,7 @@
+<aura:component >
+    <aura:handler name="test" event="c:TestEventone" action="{!c.parentshow}"/>
+    <lightning:card >
+    parent componet
+    </lightning:card>
+    <c:TestEventonechild/>
+</aura:component>

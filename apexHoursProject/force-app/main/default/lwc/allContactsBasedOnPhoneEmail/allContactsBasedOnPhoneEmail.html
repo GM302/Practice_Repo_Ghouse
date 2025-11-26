@@ -1,0 +1,11 @@
+<template>
+
+    <lightning-card title="Contacts" icon-name="standard:account">
+
+     <lightning-input label="Phone" type="search" value={phone} onchange={handlePhone}></lightning-input>
+      <lightning-input label="Email" type="search" value={email} onchange={handleEmail}></lightning-input>
+
+    </lightning-card>
+    <lightning-datatable key-field ="Id" data={cons.data} columns={cols}></lightning-datatable>
+
+</template>

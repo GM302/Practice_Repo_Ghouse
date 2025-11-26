@@ -1,0 +1,14 @@
+<template>
+    <lightning-card title="Account Card">
+
+        <lightning-input label="Phone Search" type="phone" onchange={handlechange} value={phone} name="ph"></lightning-input> 
+         <lightning-input label="Email Search" type="email" onchange={handlechange} value={email} name="em"></lightning-input> 
+
+         <lightning-button label="Submit" onclick={handleClick}></lightning-button>
+
+
+
+    </lightning-card>
+    <lightning-datatable key-field="Id" data={customerData} columns={cols}></lightning-datatable>
+
+</template>

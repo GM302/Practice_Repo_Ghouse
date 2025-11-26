@@ -1,0 +1,15 @@
+<aura:component >
+    
+    <lightning:button label="Follow" iconName="utility:add" onclick="{!c.callme}" title="click follow bro"/>
+    
+    <lightning:buttongroup>
+        <lightning:button label="contact"/>
+        <lightning:button label="contact"/>
+        <lightning:button label="contact"/>
+    </lightning:buttongroup>
+    
+    <lightning:buttonIcon iconName="utility:setup" alternativeText="settings" variant="bare"/>
+    <lightning:buttonIcon iconName="utility:like" alternativeText="Help" variant="bare" onclick="{!c.callme}"/>
+    
+	
+</aura:component>

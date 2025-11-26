@@ -1,0 +1,26 @@
+<aura:component >
+    
+    <aura:attribute name="acc" type="Account"/>
+    <aura:handler name="init" value="{!this}" action="{!c.show}"/>
+    <lightning:card iconName="standard:account">
+        
+        <aura:set attribute="title"> 
+            Account<br/>
+            {!v.acc.Name}
+             
+        </aura:set>
+         
+        Type:{!v.acc.Type} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Phone:{!v.acc.Phone} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Website:{!v.acc.Website} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; Account Owner:{!v.acc.OwnerId} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; Site:{!v.acc.Site}
+        
+    <aura:set attribute="actions">
+        <lightning:button label="New case"/>
+        <lightning:button label="New contact"/>
+        <lightning:button label="New note"/>
+    </aura:set>
+        
+    </lightning:card>
+    
+    
+    
+	
+</aura:component>

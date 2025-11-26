@@ -1,0 +1,23 @@
+<template>
+    <lightning-card  variant="Narrow"  title="Opportunity Button" icon-name="standard:opportunity">
+        <lightning-button variant="brand" label="Click" title="titleName" onclick={handleClick}></lightning-button>   
+    </lightning-card>
+
+<template if:true={isModel}>
+
+      <lightning-record-view-form
+               record-id={recordId}
+               object-api-name={oppobj}>
+       <div class="slds-box slds-theme_default">
+           <lightning-output-field field-name={oppname}></lightning-output-field>
+           <lightning-output-field field-name={oppstage}></lightning-output-field>
+           <lightning-output-field field-name={oppamount}></lightning-output-field>
+           <lightning-output-field field-name={oppclosedate}></lightning-output-field>
+           <lightning-output-field field-name={oppaccid}></lightning-output-field>
+       </div>
+   </lightning-record-view-form>
+
+
+</template>
+ 
+</template>

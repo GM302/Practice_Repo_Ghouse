@@ -1,0 +1,4 @@
+<aura:component >
+	<p>Test comTwo</p>
+    <c:ComOne val1="test comone from comtwo"/>
+</aura:component>

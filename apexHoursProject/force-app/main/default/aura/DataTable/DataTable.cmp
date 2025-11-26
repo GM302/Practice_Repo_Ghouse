@@ -1,0 +1,39 @@
+<aura:component controller="AllAccountsRet">
+    
+    <aura:attribute name="acc" type="Account[]"/>
+    <aura:attribute name="searcht" type="string"/>
+    <aura:attribute name="columns" type ="List"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.loadme}"/>
+    
+    <lightning:card  iconName="standard:account">
+        
+        <aura:set attribute="title">
+            Search Account WithText
+            <lightning:layout>
+                
+                <lightning:layoutItem size="6" padding="around-small">  
+                    <lightning:input label="serch Here" value="{!v.searcht}"/>
+                </lightning:layoutItem>
+                
+                
+                <lightning:layoutItem size="6" padding="around-small">  
+                    <lightning:button label="search" onclick="{!c.searchbutton}"/>
+                </lightning:layoutItem>
+            
+                
+            
+            </lightning:layout>
+        
+        
+        </aura:set>
+        
+        <aura:if isTrue="{!v.acc.length>0}">
+                <lightning:dataTable keyField="id" data="{!v.acc}" columns="{!v.columns}"></lightning:dataTable>
+
+        </aura:if>
+    
+    
+    </lightning:card>
+	
+</aura:component>

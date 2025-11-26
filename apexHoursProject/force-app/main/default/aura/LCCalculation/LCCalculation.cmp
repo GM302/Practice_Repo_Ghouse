@@ -1,0 +1,45 @@
+<aura:component >
+    <!-- without using auraid we need aura attaribute holder
+    
+    <aura:attribute name ="aval" type ="Integer"/>
+    <aura:attribute name ="bval" type ="Integer"/>
+    <aura:attribute name ="res" type ="Integer"/> 
+    
+     <lightning:card title="Calulation" iconName="standard:account"> 
+        
+    <aura:set attribute="actions">
+            
+            <lightning:button label="Add" onclick ="{!c.addme}" variant="brand"/>
+            <lightning:button label="Sub" onclick ="{!c.subme}" variant="base"/>
+            <lightning:button label="Mul" onclick ="{!c.mulme}" variant="inverse"/>
+
+        </aura:set> 
+        
+       with out using auraid
+       <lightning:input label="Enter avalue" value = "{!v.aval}"/>
+        <lightning:input label="Enter avalue" value = "{!v.bval}"/>
+        <lightning:input label="Result" value = "{!v.res}"/>
+    
+       using auraid -->
+    
+    
+        <lightning:card title="Calulation" iconName="standard:account">
+        
+        <aura:set attribute="actions">
+            
+            <lightning:button label="Add" onclick ="{!c.callme}" aura:id="add" variant="brand"/>
+            <lightning:button label="Sub" onclick ="{!c.callme}" aura:id="sub" variant="base"/>
+            <lightning:button label="Mul" onclick ="{!c.callme}" aura:id="mul" variant="inverse"/>
+
+        </aura:set>
+        <lightning:input label="Enter avalue" aura:id="avalueid" type="Number"/>
+        <lightning:input label="Enter avalue" aura:id="bvalueid" type="Number"/>
+        <lightning:input label="Result" aura:id="resulid" type="Number"/>
+    
+    
+    
+    
+    </lightning:card>
+    
+	
+</aura:component>

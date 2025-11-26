@@ -1,0 +1,13 @@
+<template>
+
+    <lightning-card title="Gnum">
+        <lightning-input label="Principal" onchange={handleChange} name="p1" value={principalamt}></lightning-input>
+        <lightning-input label="Rate" onchange={handleChange} name="r1" value={rating}></lightning-input>
+        <lightning-input label="Time" onchange={handleChange} name="t1" value={timing}></lightning-input>
+
+        <lightning-button label="calculate" onclick={handleClick}></lightning-button>
+
+        <lightning-button label="Clear" onclick={handleClear}></lightning-button>
+    </lightning-card>
+
+</template>

@@ -1,0 +1,275 @@
+<apex:page >
+    <!--
+
+
+
+html
+
+<template>
+    <lightning-card title="State Regulatory Notifications" icon-name="standard:date_input">
+        <div class="slds-p-around_medium">
+            <div class="slds-grid slds-wrap slds-gutters">
+
+                
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input type="checkbox" label="Incomplete Credential Application"
+                                     checked={incomplete} onchange={handleIncompleteChange}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input type="date" variant="label-hidden"
+                                     value={incompleteDate}
+                                     required={incomplete}
+                                     disabled={notIncomplete}
+                                     onchange={handleIncompleteDateChange}></lightning-input>
+                </div>
+
+                
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input type="checkbox" label="Complete Credential Application"
+                                     checked={complete} onchange={handleCompleteChange}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input type="date" variant="label-hidden"
+                                     value={completeDate}
+                                     required={complete}
+                                     disabled={notComplete}
+                                     onchange={handleCompleteDateChange}></lightning-input>
+                </div>
+
+                
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input type="checkbox" label="Extended TAT"
+                                     checked={extended} onchange={handleExtendedChange}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input type="date" variant="label-hidden"
+                                     value={extendedDate}
+                                     required={extended}
+                                     disabled={notExtended}
+                                     onchange={handleExtendedDateChange}></lightning-input>
+                </div>
+
+                
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input type="checkbox" label="Discontinued Incomplete Data Element"
+                                     checked={discontinued} onchange={handleDiscontinuedChange}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input type="date" variant="label-hidden"
+                                     value={discontinuedDate}
+                                     required={discontinued}
+                                     disabled={notDiscontinued}
+                                     onchange={handleDiscontinuedDateChange}></lightning-input>
+                </div>
+
+            </div>
+
+            
+            <div class="slds-m-top_medium slds-text-align_center">
+                <lightning-button label="Save" variant="brand" onclick={handleSave} disabled={isPristine}></lightning-button>
+                <lightning-button label="Cancel" variant="neutral" class="slds-m-left_small" onclick={handleCancel} disabled={isPristine}></lightning-button>
+            </div>
+        </div>
+    </lightning-card>
+</template>
+
+
+java script:
+
+============
+import { LightningElement, api } from 'lwc';
+import getCredentialRequest from '@salesforce/apex/PDMS_CRED_ReqFrameworkController.getCredentialRequest';
+import updateCredentialRequest from '@salesforce/apex/PDMS_CRED_ReqFrameworkController.updateCredentialRequest';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+export default class Pdms_lwc_State_Regulatory_Notifications extends LightningElement {
+
+@api recordId;
+
+    incomplete = false;
+    incompleteDate = '';
+    complete = false;
+    completeDate = '';
+    extended = false;
+    extendedDate = '';
+    discontinued = false;
+    discontinuedDate = '';
+
+    original = {};
+
+    connectedCallback() {
+        getCredentialRequest({ recordId: this.recordId })
+            .then(result => {
+                this.incomplete = result.Incomplete_Cred_Application__c;
+                this.incompleteDate = result.Incomplete_Cred_Application_Sent_Date__c;
+                this.complete = result.Complete_Cred_Application__c;
+                this.completeDate = result.Complete_Cred_Application_Sent_Date__c;
+                this.extended = result.Extended_TAT__c;
+                this.extendedDate = result.Extended_TAT_Sent_Date__c;
+                this.discontinued = result.Discontinued_Incomplete_Data_Element__c;
+                this.discontinuedDate = result.Discontinued_Incomplete_Data_Element_S__c;
+
+                this.original = {
+                    incomplete: this.incomplete,
+                    incompleteDate: this.incompleteDate,
+                    complete: this.complete,
+                    completeDate: this.completeDate,
+                    extended: this.extended,
+                    extendedDate: this.extendedDate,
+                    discontinued: this.discontinued,
+                    discontinuedDate: this.discontinuedDate
+                };
+            })
+            .catch(err => {
+                this.showError('Failed to load record: ' + err.body.message);
+            });
+    }
+
+    // Handler for Incomplete Credential Application checkbox
+    handleIncompleteChange(event) {
+        this.incomplete = event.target.checked;
+        if (!this.incomplete) {
+            this.incompleteDate = null;  // Clear the date if unchecked
+        }
+    }
+
+    // Handler for Incomplete Credential Application Sent Date
+    handleIncompleteDateChange(event) {
+        this.incompleteDate = event.target.value;
+    }
+
+    // Handler for Complete Credential Application checkbox
+    handleCompleteChange(event) {
+        this.complete = event.target.checked;
+        if (!this.complete) {
+            this.completeDate = null;  // Clear the date if unchecked
+        }
+    }
+
+    // Handler for Complete Credential Application Sent Date
+    handleCompleteDateChange(event) {
+        this.completeDate = event.target.value;
+    }
+
+    // Handler for Extended TAT checkbox
+    handleExtendedChange(event) {
+        this.extended = event.target.checked;
+        if (!this.extended) {
+            this.extendedDate = null;  // Clear the date if unchecked
+        }
+    }
+
+    // Handler for Extended TAT Sent Date
+    handleExtendedDateChange(event) {
+        this.extendedDate = event.target.value;
+    }
+
+    // Handler for Discontinued Incomplete Data Element checkbox
+    handleDiscontinuedChange(event) {
+        this.discontinued = event.target.checked;
+        if (!this.discontinued) {
+            this.discontinuedDate = null;  // Clear the date if unchecked
+        }
+    }
+
+    // Handler for Discontinued Incomplete Data Element Sent Date
+    handleDiscontinuedDateChange(event) {
+        this.discontinuedDate = event.target.value;
+    }
+
+    handleCancel() {
+        Object.assign(this, this.original);
+    }
+
+    handleSave() {
+        const missing = [];
+        if (this.incomplete && !this.incompleteDate) missing.push('Incomplete Application Date');
+        if (this.complete && !this.completeDate) missing.push('Complete Application Date');
+        if (this.extended && !this.extendedDate) missing.push('Extended TAT Date');
+        if (this.discontinued && !this.discontinuedDate) missing.push('Discontinued Date');
+
+        if (missing.length) {
+            this.showError(`Required: ${missing.join(', ')}`);
+            return;
+        }
+
+        updateCredentialRequest({
+            recordId: this.recordId,
+            incomplete: this.incomplete,
+            incompleteDate: this.incomplete ? this.incompleteDate : null,
+            complete: this.complete,
+            completeDate: this.complete ? this.completeDate : null,
+            extended: this.extended,
+            extendedDate: this.extended ? this.extendedDate : null,
+            discontinued: this.discontinued,
+            discontinuedDate: this.discontinued ? this.discontinuedDate : null
+        })
+            .then(() => {
+                this.showSuccess('Credential Request updated.');
+                this.original = {
+                    incomplete: this.incomplete,
+                    incompleteDate: this.incompleteDate,
+                    complete: this.complete,
+                    completeDate: this.completeDate,
+                    extended: this.extended,
+                    extendedDate: this.extendedDate,
+                    discontinued: this.discontinued,
+                    discontinuedDate: this.discontinuedDate
+                };
+            })
+            .catch(err => {
+                this.showError('Update failed: ' + err.body.message);
+            });
+    }
+
+    get notIncomplete() { return !this.incomplete; }
+    get notComplete() { return !this.complete; }
+    get notExtended() { return !this.extended; }
+    get notDiscontinued() { return !this.discontinued; }
+
+    get isPristine() {
+        return (
+            this.incomplete === this.original.incomplete &&
+            this.incompleteDate === this.original.incompleteDate &&
+            this.complete === this.original.complete &&
+            this.completeDate === this.original.completeDate &&
+            this.extended === this.original.extended &&
+            this.extendedDate === this.original.extendedDate &&
+            this.discontinued === this.original.discontinued &&
+            this.discontinuedDate === this.original.discontinuedDate
+        );
+    }
+
+    showSuccess(msg) {
+        this.dispatchEvent(new ShowToastEvent({ title: 'Success', message: msg, variant: 'success' }));
+    }
+
+    showError(msg) {
+        this.dispatchEvent(new ShowToastEvent({ title: 'Error', message: msg, variant: 'error' }));
+    }
+
+
+}
+
+
+
+meat:
+=====
+<?xml version="1.0"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+	<apiVersion>62.0</apiVersion>
+	<isExposed>true</isExposed>
+	<targets>
+		<target>lightning__RecordPage</target>
+	</targets>
+</LightningComponentBundle>
+
+
+
+
+
+
+
+
+
+-->
+</apex:page>

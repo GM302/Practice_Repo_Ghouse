@@ -1,0 +1,20 @@
+<template>
+
+    <lightning-combobox
+        name="progress"
+        label="Dynamic Form"
+        value={selectedoption}
+        placeholder="Select Progress"
+        options={options}
+        onchange={handleChange} ></lightning-combobox>
+
+        <div if:true={namefield}>
+             <lightning-input type="text" variant="standard" name="name" label="Name" placeholder="type here..."></lightning-input>
+
+        </div>
+
+         <div if:true={emailfield}>
+                <lightning-input type="text" variant="standard" name="name" label="Email" placeholder="type here..."></lightning-input>
+         </div>
+
+</template>

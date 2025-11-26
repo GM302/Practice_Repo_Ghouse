@@ -1,0 +1,23 @@
+<apex:page >
+    <!--
+    trigger UpdateCaseOwnerFromCredentialRequest on Credential_Request__c (after update) {
+    // Get the queue Id (you can hardcode or fetch dynamically if needed)
+    Group rosterQueue = [SELECT Id FROM Group WHERE Name = 'Roster Automation Queue' AND Type = 'Queue' LIMIT 1];
+
+    Set<Id> caseIdsToUpdate = new Set<Id>();
+    for (Credential_Request__c cr : Trigger.new) {
+        Credential_Request__c oldCr = Trigger.oldMap.get(cr.Id);
+        if (cr.Status__c == 'Roster Confirmation' && cr.Status__c != oldCr.Status__c && cr.Case__c != null) {
+            caseIdsToUpdate.add(cr.Case__c);
+        }
+    }
+
+    if (!caseIdsToUpdate.isEmpty()) {
+        List<Case> casesToUpdate = [SELECT Id FROM Case WHERE Id IN :caseIdsToUpdate];
+        for (Case c : casesToUpdate) {
+            c.OwnerId = rosterQueue.Id;
+        }
+        update casesToUpdate;
+    }
+}-->
+</apex:page>

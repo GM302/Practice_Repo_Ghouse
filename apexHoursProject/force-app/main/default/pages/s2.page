@@ -1,0 +1,43 @@
+<apex:page >
+    <!--
+    ({
+    handleCheckboxChange: function(component, event, helper) {
+        // This function is optional if you're using dynamic binding with "required" attributes.
+        // If additional logic is needed, put it here.
+    },
+
+    handleSubmit: function(component, event, helper) {
+        const record = component.get("v.credentialingRequest");
+        let valid = true;
+
+        const checks = ['A__c', 'B__c', 'C__c', 'D__c'];
+        const dates = ['aDate', 'bDate', 'cDate', 'dDate'];
+
+        for (let i = 0; i < checks.length; i++) {
+            if (record[checks[i]] && !component.find(dates[i]).get("v.value")) {
+                valid = false;
+                component.find(dates[i]).showHelpMessageIfInvalid();
+            }
+        }
+
+        if (valid) {
+            const action = component.get("c.saveCredentialingRequest");
+            action.setParams({ credRequest: record });
+
+            action.setCallback(this, function(response) {
+                const state = response.getState();
+                if (state === "SUCCESS") {
+                    alert("Record saved successfully!");
+                } else {
+                    alert("Error: " + response.getError()[0].message);
+                }
+            });
+
+            $A.enqueueAction(action);
+        } else {
+            alert("Please fill in required date fields.");
+        }
+    }
+})
+-->
+</apex:page>

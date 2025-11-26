@@ -1,0 +1,21 @@
+<template>
+
+ <lightning-card title="Greater Number" icon-name = "standard:account">
+
+     <lightning-input variant="standard" label="FirstNumber" onchange={handleDataChange} value={fnum} name="f1" placeholder="type here..."></lightning-input>
+     <lightning-input variant="standard" label="SecoundNumber" onchange={handleDataChange}  value={snum} name="s1" placeholder="type here..."></lightning-input>
+     <lightning-input variant="standard" label="ThirdNumber" onchange={handleDataChange} value={tnum} name="t1" placeholder="type here..."></lightning-input>
+
+     <lightning-button-group>
+         <lightning-button label="Calculate" onclick={handleCalculate}  variant="brand"></lightning-button>&nbsp;&nbsp;
+         <lightning-button label="Clear" onclick={handleClear} variant="brand"></lightning-button>
+     </lightning-button-group>
+
+
+
+
+ </lightning-card>
+
+
+
+</template>

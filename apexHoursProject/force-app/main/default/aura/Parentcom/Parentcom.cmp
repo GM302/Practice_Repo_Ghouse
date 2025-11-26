@@ -1,0 +1,13 @@
+<aura:component >
+    
+    <aura:attribute name="parentvar" type="string" default="parantdefaultvalue"/>
+    
+    parent: {!v.parentvar}<p></p>
+    
+    <c:Childcom childvar="{!v.parentvar}"/><p></p>
+    
+    <lightning:button label="parentbuttonlabel" onclick="{!c.parentbutton}"/><p></p>
+    
+    
+	
+</aura:component>

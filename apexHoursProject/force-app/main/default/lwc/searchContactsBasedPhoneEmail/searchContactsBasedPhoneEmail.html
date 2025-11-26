@@ -1,0 +1,17 @@
+<template>
+
+    <lightning-card title="Search Contact Title" icon-name="standard:contact">
+        <lightning-input label="Serach by Phone" type="search" onchange={handlePhone} value={searchPh} name="ph"></lightning-input>
+        <lightning-input label="Serach by Email" type="search" onchange={handleEmail} value={searchEml} name="em"></lightning-input>
+       
+
+       
+    </lightning-card>
+    <lightning-card title="Conatcts">
+
+        <lightning-datatable key-field="Id" data={allCons.data} columns={cols}></lightning-datatable>
+
+    </lightning-card>
+
+   
+</template>

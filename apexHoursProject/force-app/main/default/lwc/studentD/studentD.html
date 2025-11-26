@@ -1,0 +1,27 @@
+<template>
+
+        <template for:each={studentDtails} for:item="std">
+
+            <div key={std}> 
+                {std.Name}
+                {std.Age} 
+                {std.salary}
+                {std.FName}
+
+            </div>
+
+
+        </template>
+
+         <!-- <template iterator:it={studentDtails}>
+             <div key={it.value.Id}>
+                     {it.value.Name}
+                     {it.value.Age}
+                     {it.value.salary}
+                     {it.value.FName}
+             </div>
+         </template> -->
+       
+  
+
+</template>

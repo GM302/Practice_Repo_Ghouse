@@ -1,0 +1,24 @@
+<template>
+    <lightning-card title="Account Details">
+
+        <lightning-input label="Account Phone" type="Phone"  onchange={handleChnage} value={phone} name="PHONE"></lightning-input>
+        <lightning-input label="Account Email" type="Email" onchange={handleChnage} value={email} name="Email"></lightning-input>
+
+       <div class={dynamicClass}>
+        {message}
+        </div> <br/>
+
+        <lightning-button label="Submit" onclick={handleClick}></lightning-button>
+
+
+
+    </lightning-card>
+
+    <template if:true={accountsData}>
+      <c-acc-details-view accounts-data={accountsData}></c-acc-details-view>
+
+    </template>
+
+   
+
+</template>

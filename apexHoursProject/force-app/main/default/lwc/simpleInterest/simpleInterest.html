@@ -1,0 +1,18 @@
+<template>
+
+    <lightning-input label="Princple Amount" onchange={handleAmount} type="number" value={princpleAmount}></lightning-input>
+    <lightning-input label="Rating" onchange={handleRating} type="number" value={rateOfInterest}></lightning-input>
+    <lightning-input label="Time" onchange={handleTime} type="number" value={timeofInterest}></lightning-input>
+
+    <lightning-button label="calculate" onclick={handleClick}></lightning-button>
+    <lightning-button label="clear" onclick={handleClear}></lightning-button>
+
+    
+
+        <template if:true={Interest}>
+                <p class="slds-m-top_medium">Simple Interest: ${Interest}</p>
+        </template>
+
+    
+
+</template>

@@ -1,0 +1,6 @@
+<aura:component >
+    <aura:handler name="first" event="c:TestEvent" action="{!c.showme}"/>
+    
+    This is parent component.
+    <c:TestEventChild/>
+</aura:component>

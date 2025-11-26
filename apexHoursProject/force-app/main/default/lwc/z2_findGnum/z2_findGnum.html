@@ -1,0 +1,20 @@
+<template>
+
+    <lightning-card title="GNumber" icon-name="standard:account">
+
+        <div class="slds-var-m-around_medium">
+
+            <lightning-input label="Enter FirstNumber" onchange={handleChange} value={fnum} name="f1"></lightning-input>
+            <lightning-input label="Enter SecondNumber" onchange={handleChange} value={snum} name="s1"></lightning-input>
+            <lightning-input label="Enter ThirdNumber" onchange={handleChange} value={tnum} name="t1"></lightning-input>
+
+            <lightning-button label="Calculate" onclick={handleClcik}></lightning-button>
+             <lightning-button label="Reset" onclick={handleReset}></lightning-button>
+
+
+        </div>
+
+
+    </lightning-card>
+
+</template>

@@ -1,0 +1,17 @@
+<aura:component >
+    
+    <aura:registerEvent name="passev" type="c:EventPass"/>
+    
+    <aura:attribute name="newacc" type="Account" default="{'sObjectType':'Account'}"/>
+    
+	<lightning:card title="ChildCmp">
+        <aura:set attribute="actions">
+            <lightning:button label="save" onclick="{!c.saveme}"/>
+            <lightning:button label="clear" onclick="{!c.clearme}"/>
+        </aura:set>
+        <lightning:input label="EnterName" value="{!v.newacc.Name}"/>
+        <lightning:input label="EnterPhone" value="{!v.newacc.Phone}"/>
+        <lightning:input label="EnterRating" value="{!v.newacc.Rating}"/>
+
+    </lightning:card>
+</aura:component>

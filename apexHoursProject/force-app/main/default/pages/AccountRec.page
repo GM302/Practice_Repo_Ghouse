@@ -1,0 +1,236 @@
+<!--Account table standaredcontroller="Account"
+    Custom obj standaredcontroller="Employee__c"-->
+ <!--https://d5i00000dwmxqead-dev-ed--c.develop.vf.force.com/apex/AccountRec?id=0015i000013As0a -->
+
+
+<!-- style  inline for each line will apply style tab
+ intenal style we can difine on top of <style>
+
+                                           .mystlye{
+                                         }
+
+                                       </style>
+prepare sheet and upload in resouce
+<apex:stylesheet={!$Resource.ST}
+
+-->
+
+
+<apex:page standardcontroller="Account" sidebar="false" showHeader="false"> 
+    
+    <style>
+        .box{
+        
+        color:red;
+        background-color:green;
+        
+        font-size:15px;
+        font-style:italic;
+        
+        
+        }
+        
+       .location{
+        
+        margin-left:1330px;
+        border-style:solid;
+        
+       padding-left:10px;
+        
+        
+        }
+        
+        h1{
+        
+         margin-left:50%;
+        
+        }
+    
+    
+    </style>
+   
+    
+    
+    <div class="location">
+       Loggedin User: {!$user.Firstname}<p></p>
+        
+        
+        Email Id :{!$user.email}<p></p>
+    
+    </div>
+    
+       <apex:iframe src="https://www.apollohospitals.com/hyderabad/"/> 
+    
+    
+    
+    
+    
+    <!-- we can use tabpanal and tab inside the pageblock with pageblocksection -->
+   <apex:pageBlock >
+       <apex:pageBlockSection >
+           <apex:tabPanel >
+               <apex:tab label="Tab1 inside pageblock">
+               
+               </apex:tab>
+                <apex:tab label="Tab2 inside pageblock">
+               
+               </apex:tab>
+           
+           </apex:tabPanel>
+       </apex:pageBlockSection>
+    
+    </apex:pageBlock> 
+    
+ <!-- we can use tabpanal and tab inside the pageblock with pageblocksection -->
+    
+    
+ <!-- using of tabpanal inside tab inside pageblock with section using input field by passing account id -->
+    
+    <apex:tabPanel >
+        
+        <apex:tab label="Tab1">
+            <apex:form >
+                
+                <h1>Welcome to Apolo</h1>
+                <apex:outputlink value="https://www.apollohospitals.com/hyderabad/">Apollo Hospital</apex:outputlink>
+            
+              <apex:pageBlock title="CreateAccount">
+                <apex:pageBlockSection >
+                    
+                    <apex:inputField value="{!Account.Name}" styleClass="box"/>
+                    <apex:inputField value="{!Account.Phone}" styleClass="box"/>
+                    <apex:inputField value="{!Account.Fax}" styleClass="box"/>
+                    <apex:inputField value="{!Account.Sic}"/>
+                    <apex:inputField value="{!Account.Industry}"/>
+                    <apex:inputHidden value="{!Account.Fax}"/>
+                    <apex:inputSecret value="{!Account.accountnumber}"/>
+                    <apex:inputText label="Enter length"/>
+                    <apex:inputTextarea label="comments"/>
+                    
+                <!-- Display check on page and iteam value will store in backend -->    
+                    <apex:selectCheckboxes label="Select courses" layout="pagedirection">  <!-- layout="pagedirection" or "linedirection" -->
+                        <apex:selectOption itemLabel="salesforce" itemValue="SFDC"/>
+                        <apex:selectOption itemLabel="microsoft" itemValue="Ms"/>
+                        <apex:selectOption itemLabel="Java" itemValue="Jv"/>
+                    </apex:selectCheckboxes>
+                  <!-- Display check on page and iteam value will store in backend --> 
+                    
+                    <apex:selectRadio label="Select course" layout="pagedirection">
+                       
+                        <apex:selectOption itemLabel="Apex" itemValue="Ap"/>
+                        <apex:selectOption itemLabel="LWC" itemValue="Lw"/>
+                        <apex:selectOption itemLabel="Aura" itemValue="LC"/>
+                    
+                    </apex:selectRadio>
+                    
+                    <apex:selectList multiselect="true" label="Select course">
+                    
+                     <apex:selectOption itemLabel="Apex" itemValue="Ap"/>
+                        <apex:selectOption itemLabel="LWC" itemValue="Lw"/>
+                        <apex:selectOption itemLabel="Aura" itemValue="LC"/>
+                    
+                    </apex:selectList>
+                    
+                    <apex:commandButton value="Click to Save" title="saving" action="{!save}"/>
+                    <apex:commandLink value="Click to Save" title="saving" action="{!save}"/>
+                
+                </apex:pageBlockSection>
+                  
+                  <!-- pageblocksectionIteam bind the lable and box --> 
+                  <apex:pageBlockSection >
+                      <apex:pageBlockSectionItem >
+                          <apex:outputLabel value="Enter Name"/>
+                          <apex:inputText />
+                      
+                      </apex:pageBlockSectionItem>
+                  
+                  </apex:pageBlockSection>
+            
+            </apex:pageBlock>            
+            </apex:form>
+            
+            
+           
+        
+        </apex:tab>
+        
+         <apex:tab label="Tab2">
+             <apex:image value="{!$Resource.apolo}" width="1500px" height="500px"/>
+        
+        </apex:tab>
+        
+         <apex:tab label="Tab3">
+             
+             <apex:pageblock title="Display Account">
+
+       <apex:pageBlockSection title="account section-1" collapsible="false"> <!--bydefault collapsible is true-->
+
+           <apex:outputfield value="{!Account.Name}"/>
+           <apex:outputfield value="{!Account.Phone}"/>
+           <apex:outputfield value="{!Account.Fax}"/>
+           <apex:outputfield value="{!Account.Sic}"/>
+           <apex:outputfield value="{!Account.Industry}"/>
+
+       </apex:pageBlockSection>
+       
+       
+       <!-- dsplay accunt relatedlist like contacts and cases use plural label -->
+       
+       <apex:pageBlockSection >
+           
+           <apex:relatedList list="contacts"/>
+           <apex:relatedList list="cases"/>
+       
+       </apex:pageBlockSection>
+       
+       
+       <!-- custom table of contact and case object record of specific of account record by pass ?id=0015i000013As0a -->
+       
+       <apex:pageBlockSection >
+       
+         <apex:dataTable value="{!Account.contacts}" var="con" bgcolor="yellow" border="3px">
+             
+             <apex:column value="{!con.FirstName}" headerValue="FNAME" title="Enter your firstname"/>  <!-- tooltip title="Enter your firstname" -->
+             <apex:column value="{!con.LastName}" headerValue="LNAME"/>
+             <apex:column value="{!con.Phone}" headerValue="Phone"/>
+             <apex:column value="{!con.Email}" headerValue="Email"/>
+           
+           
+           </apex:dataTable>
+           
+       </apex:pageBlockSection>
+       
+       <apex:pageBlockSection >
+       
+         <apex:dataTable value="{!Account.cases}" var="con" bgcolor="green" border="3px">
+             
+             <apex:column value="{!con.subject}" headerValue="Subject"/>
+             <apex:column value="{!con.origin}" headerValue="LNAME"/>
+             <apex:column value="{!con.status}" headerValue="Phone"/>
+
+           </apex:dataTable>
+           
+       </apex:pageBlockSection>
+       
+       <!-- sos command to display all relatedlist -->
+       
+       <apex:pageBlockSection title="detail">
+           
+           <apex:detail />
+       
+       
+       </apex:pageBlockSection>
+       
+   </apex:pageblock>
+             
+        
+        </apex:tab>
+    
+    
+    
+    </apex:tabPanel>
+    
+<!-- using of tabpanal inside tab -->
+   
+
+</apex:page>

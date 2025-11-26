@@ -1,0 +1,42 @@
+<apex:page >
+    <!--
+    @isTest
+private class CredentialingRequestControllerTest {
+    
+    @isTest
+    static void testSaveValidRecord() {
+        Credentialing_Request__c cred = new Credentialing_Request__c(
+            A__c = true, a__c = Date.today(),
+            B__c = false,
+            C__c = true, c__c = Date.today(),
+            D__c = false
+        );
+        
+        Test.startTest();
+        String result = CredentialingRequestController.saveCredentialingRequest(cred);
+        Test.stopTest();
+        
+        System.assertEquals('Credentialing Request saved successfully.', result);
+    }
+
+    @isTest
+    static void testValidationFailure() {
+        Credentialing_Request__c cred = new Credentialing_Request__c(
+            A__c = true, // missing a__c
+            B__c = false,
+            C__c = false,
+            D__c = false
+        );
+        
+        Test.startTest();
+        try {
+            CredentialingRequestController.saveCredentialingRequest(cred);
+            System.assert(false, 'Expected validation exception.');
+        } catch (AuraHandledException e) {
+            System.assert(e.getMessage().contains('Date A is required'));
+        }
+        Test.stopTest();
+    }
+}
+-->
+</apex:page>

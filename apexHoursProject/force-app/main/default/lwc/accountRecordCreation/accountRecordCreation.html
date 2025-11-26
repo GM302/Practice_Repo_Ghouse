@@ -1,0 +1,19 @@
+<template>
+
+    <lightning-card title="Account Record Creation">
+
+        <lightning-input label="Account Name" value={accname} onchange={handleChange} name="nam"></lightning-input>
+        <lightning-input label="Account Phone" value={accphone} onchange={handleChange} name="phn"></lightning-input>
+        <lightning-input label="Account Fax" value={accfax} onchange={handleChange} name="fx"></lightning-input>
+        <lightning-input label="Account Industry" value={accindustry} onchange={handleChange} name="ind"></lightning-input>
+        <lightning-input label="Account Rating" value={accrating} onchange={handleChange} name="rat"></lightning-input>
+
+        <lightning-button label="Save Record" variant="Brand" onclick={handleClick}>
+
+        </lightning-button>
+
+
+
+    </lightning-card>
+
+</template>

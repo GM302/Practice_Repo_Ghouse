@@ -1,0 +1,28 @@
+<aura:component >
+    
+    <lightning:card>
+        <aura:set>   
+        <lightning:button label ="New Contact"/>
+        <lightning:button label ="New Case"/>
+        <lightning:button label ="New Note"/>
+        </aura:set>     
+    </lightning:card>
+    
+    <lightning:button label ="Follow" iconName="utility:add" />
+    
+    <lightning:buttonIcon iconName="utility:settings" variant="bare" onclick="{! c.handleClick }" alternativeText="Settings" title="Settings" />
+    <lightning:buttonIcon iconName="utility:settings" variant="bare" onclick="{! c.handleClick }" disabled="true" alternativeText="Settings (disabled)"  />
+
+    
+   <!-- <lightning:buttonGroup>
+        <lightning:button label ="New Contact"/>
+        <lightning:button label ="New Case"/>
+        <lightning:button label ="New Note"/>
+        <lightning:buttonMenu alternativeText="Show menu">
+                <lightning:menuItem value="Nopp" label="New Opportunity" />
+                <lightning:menuItem value="Cowner" label="Change Owner" />
+                <lightning:menuItem value="Ndata" label="Check for new data" />   
+            </lightning:buttonMenu>
+    </lightning:buttonGroup> -->
+    
+</aura:component>

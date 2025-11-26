@@ -1,0 +1,59 @@
+<aura:component >
+    
+    <aura:attribute name="Fname" type="string"/>
+    <aura:attribute name="Lname" type="string"/>
+    <aura:attribute name="Age" type="integer"/>
+    <aura:attribute name="Salary" type="decimal"/>
+    
+    
+    <lightning:card iconName="standard:account">
+        <aura:set attribute="title">
+            Account
+            <h1>Fouziya6</h1>
+        </aura:set>
+        <aura:set attribute="actions">
+            <lightning:button label="Follow" iconName="utility:add" onclick="{!c.callme}"/>
+            <lightning:buttonGroup>
+                <lightning:button label="New Contact" onclick="{!c.callme2}"/>
+                <lightning:button label="New Case" onclick="{!c.callme3}"/>
+                <lightning:button label="New Note" onclick="{!c.callme4}"/>
+                
+                <lightning:buttonMenu alternativeText="menu">
+                    <lightning:menuItem value="nop" label="new opp"/>
+                    <lightning:menuItem value="ncon" label="new con"/>
+                    <lightning:menuItem value="ncx" label="new case"/>
+                    <lightning:menuSubheader label="DML"/>
+                    <lightning:menuItem value="edit" label="Edit"/>
+                    <lightning:menuItem value="save" label="Save"/>
+                </lightning:buttonMenu>
+                
+                
+            </lightning:buttonGroup> 
+            
+            
+            <lightning:buttonIconStateful iconName="utility:notification" alternativeText="notification"/>
+            
+            
+            
+            <lightning:buttonIcon iconName="utility:setup" alternativeText="settings"/>
+            <lightning:buttonIcon iconName="utility:help" alternativeText="Help"/>
+            <lightning:buttonIcon iconName="utility:notification" alternativeText="notification"/> 
+            
+        </aura:set>
+        
+        <lightning:input label="Enter FirstName" value="{!v.Fname}"/>
+        <lightning:input label="Enter LastName" value="{!v.Lname}"/>
+        <lightning:input label="Enter Age" value="{!v.Age}"/>
+        <lightning:input label="Enter Salary" value="{!v.Salary}"/>
+        
+        
+        Firstname: {!v.Fname}<br/>
+         LastName : {!v.Lname}<br/>
+         Age : {!v.Age}<br/>
+        Salary:{!v.Salary}<br/><br/>
+        <lightning:button label="submit" onclick="{!c.submit}" variant="success"/>
+        <lightning:button label="save" onclick="{!c.save}" variant="success"/>
+        
+    </lightning:card>
+    
+</aura:component>

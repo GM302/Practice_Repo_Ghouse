@@ -1,0 +1,36 @@
+<apex:page >
+    <!--
+    ({
+    handleCheckboxChange: function(component, event, helper) {
+        let record = component.get("v.credentialingRequest");
+
+        component.set("v.isARequired", record.A__c === true);
+        component.set("v.isBRequired", record.B__c === true);
+        component.set("v.isCRequired", record.C__c === true);
+        component.set("v.isDRequired", record.D__c === true);
+    },
+
+    handleSave: function(component, event, helper) {
+        let action = component.get("c.saveCredentialingRequest");
+        let record = component.get("v.credentialingRequest");
+
+        action.setParams({ credRequest: record });
+
+        action.setCallback(this, function(response) {
+            let state = response.getState();
+            if (state === "SUCCESS") {
+                alert("Record saved successfully!");
+            } else {
+                let errors = response.getError();
+                if (errors && errors[0]) {
+                    alert("Error: " + errors[0].message);
+                }
+            }
+        });
+
+        $A.enqueueAction(action);
+    }
+})
+-->
+
+</apex:page>

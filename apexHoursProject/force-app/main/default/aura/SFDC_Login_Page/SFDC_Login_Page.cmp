@@ -1,0 +1,28 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    
+    <aura:attribute name ="username" type="string"/>
+    <aura:attribute name ="pass" type="string"/>
+    <div class="im">
+        <img src="{!$Resource.lo}" /><p></p>
+    </div>
+    
+    <div class="box">
+    
+    <lightning:card>
+        <lightning:input label="Username" type="Text" value="{!v.username}"/>
+         <lightning:input label="Password" type="password " value="{!v.pass}"  required="true"/>
+        
+    <aura:set attribute="footer">
+        <lightning:button label="Login" onclick="{!c.Click}" variant="brand"/> 
+        
+        
+        </aura:set>
+    
+    
+    </lightning:card>
+    
+    
+    </div>
+    
+	
+</aura:component>

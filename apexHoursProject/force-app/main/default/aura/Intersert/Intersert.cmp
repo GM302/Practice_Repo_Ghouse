@@ -1,0 +1,39 @@
+<aura:component>
+
+<aura:attribute name="princeple" type="decimal"/>
+<aura:attribute name="rate" type="decimal"/>
+<aura:attribute name="term" type="decimal"/>
+<aura:attribute name="Interest" type="decimal"/>
+
+<aura:attribute name="flag" type="boolean" default="false"/>
+
+<lightning:card title="Calucaltion">
+
+   <aura:set attribute="actions">
+    <lightning:button label="submit" onclick="{!c.callme}" variant="brand"/>
+</aura:set>
+
+<lightning:input label="Enter princple amount" value="{!v.princeple}"/>
+<lightning:input label="Enter rate" value="{!v.rate}"/>
+<lightning:input label="Enter term" value="{!v.term}"/>
+<lightning:input label="Enter Interest" value="{!v.Interest}"/>
+</lightning:card>
+
+
+
+
+<aura:if isTrue ="{!v.flag}">
+
+<lightning:card title="display result">
+
+PAmount:{!v.princeple}<br/>
+RRate: {!v.rate}<br/>
+Term: {!v.term}<br/>
+Interest:{!v.Interest}<br/>
+</lightning:card>
+</aura:if>
+
+
+
+
+</aura:component>

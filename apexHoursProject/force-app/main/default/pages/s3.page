@@ -1,0 +1,17 @@
+<apex:page >
+    <!-- 
+
+
+public with sharing class CredentialingRequestController {
+
+    @AuraEnabled
+    public static void saveCredentialingRequest(Credentialing_Request__c credRequest) {
+        if (credRequest == null) {
+            throw new AuraHandledException('Credentialing Request cannot be null.');
+        }
+
+        upsert credRequest;
+    }
+}
+-->
+</apex:page>

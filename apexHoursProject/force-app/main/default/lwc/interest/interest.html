@@ -1,0 +1,20 @@
+<template>
+
+    <lightning-card  variant="Narrow"  title="Calculate Interest" icon-name="standard:account">
+
+        <div class="slds-col slds-size_1-of-2">
+         <lightning-input name="price" label="Principal(P) : $" placeholder="type here..." value={principal} onchange={handleChangeData}></lightning-input>
+         <lightning-input name="rate" label="Rate (R) Per year : %" placeholder="type here..." value={rate} onchange={handleChangeData}></lightning-input>
+         <lightning-input name="time" label="Times in Years" placeholder="type here..." value={time} onchange={handleChangeData}></lightning-input>
+
+        </div>
+         Result : {result}
+
+         <lightning-button-group>
+             <lightning-button label="Calculate" onclick={handleClick}></lightning-button>
+             <lightning-button label="Clear" onclick={handleClear}></lightning-button>  
+         </lightning-button-group>
+
+    </lightning-card>
+
+</template>

@@ -1,0 +1,25 @@
+<template>
+
+    <lightning-card>
+
+
+<template for:each={student} for:item=student>
+
+    <p key={student.id}>{student.Name}</p>
+    <p key={student.id}>{student.age}</p>
+    <p key={student.id}>{student.phone}</p>
+
+
+</template>
+
+
+
+        Name:{name}
+
+
+        <lightning-input label="Enter Name" onchange={handleChange} value={name}></lightning-input>
+
+
+    </lightning-card>
+
+</template>

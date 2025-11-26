@@ -1,0 +1,11 @@
+<aura:component >
+    <aura:registerEvent name="test" type="c:TestEventone"/>
+    <aura:attribute name ="emp" type="string"/>
+    <lightning:input label ="Enter name" value="{!v.emp}"/>
+       
+     I amchild cmp    
+        <lightning:button label="submit" onclick="{!c.calme}"/>
+        
+       
+   
+</aura:component>

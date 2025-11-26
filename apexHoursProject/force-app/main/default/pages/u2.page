@@ -1,0 +1,9 @@
+<apex:page >
+    <!--
+    ({
+    doSave : function(component, event, helper) {
+        helper.validateFields(component);
+    }
+})
+-->
+</apex:page>

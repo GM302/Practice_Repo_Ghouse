@@ -1,0 +1,66 @@
+<aura:component >
+    <aura:attribute name="acc" type="Account" default="{sObjecttype:'Account'}"/>
+    
+    <lightning:layout multipleRows="true">
+        <lightning:layoutItem size="12">
+        
+       
+        
+        <lightning:card title="Account">
+        <aura:set attribute="actions">
+            <lightning:button label="submit" onclick="{!c.callme}"/>
+        </aura:set>
+    
+        <lightning:input label="Account Name" value="{!v.acc.Name}"/>
+         <lightning:input label="Account phone" value="{!v.acc.	Phone}"/>
+         <lightning:input label="Account fax" value="{!v.acc.Fax}"/>
+    
+    
+    
+    </lightning:card>
+     </lightning:layoutItem>
+        
+        
+        
+
+        <lightning:layoutItem size="7">
+        
+       
+        
+        <lightning:card title="Account">
+        <aura:set attribute="actions">
+            <lightning:button label="submit" onclick="{!c.callme}"/>
+        </aura:set>
+    
+        <lightning:input label="Account Name" value="{!v.acc.Name}"/>
+         <lightning:input label="Account phone" value="{!v.acc.	Phone}"/>
+         <lightning:input label="Account fax" value="{!v.acc.Fax}"/>
+    
+    
+    
+    </lightning:card>
+     </lightning:layoutItem>   
+        
+        
+        
+         <lightning:layoutItem size="5">
+        
+       
+        
+        <lightning:card title="Account">
+        <aura:set attribute="actions">
+            <lightning:button label="submit" onclick="{!c.callme}"/>
+        </aura:set>
+    
+        <lightning:input label="Account Name" value="{!v.acc.Name}"/>
+         <lightning:input label="Account phone" value="{!v.acc.	Phone}"/>
+         <lightning:input label="Account fax" value="{!v.acc.Fax}"/>
+    
+    
+    
+    </lightning:card>
+     </lightning:layoutItem>   
+        
+    </lightning:layout>
+   
+</aura:component>

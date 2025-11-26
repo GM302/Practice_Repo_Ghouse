@@ -1,0 +1,12 @@
+<template>
+
+    <lightning-card title="My card">
+
+<lightning-button label={labeldyn} variant="brand" onclick={handleClick}></lightning-button>
+
+<p lwc:if={property1}>statement 1 </p>
+<p lwc:elseif={property2}>statement 2 </p>
+<p lwc:else>statement 3</p>
+    </lightning-card>
+    
+</template>

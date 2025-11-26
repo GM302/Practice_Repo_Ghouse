@@ -1,0 +1,1874 @@
+<apex:page >
+    <!-- 
+
+get isSaveDisabled() {
+    return this.isPristine || this.hasInvalidFields;
+}
+
+<template>
+    <lightning-card title="State Regulatory Notifications" icon-name="standard:date_input">
+        <div class="slds-p-around_medium">
+            <template for:each={fields} for:item="item">
+                <div key={item.id} class="slds-grid slds-wrap slds-gutters slds-m-bottom_small">
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-input
+                            type="checkbox"
+                            label={item.label}
+                            checked={item.checked}
+                            onchange={item.checkboxChange}
+                        ></lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2">
+                        <div onclick={item.openCalendar} style="cursor:pointer;">
+                            <input
+                                type="date"
+                                value={item.value}
+                                required={item.checked}
+                                disabled={item.disabled}
+                                onchange={item.dateChange}
+                                style={item.inputStyle}
+                                data-id={item.dataId}
+                                placeholder=""
+                            />
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <div class="slds-m-top_medium slds-text-align_center">
+                <lightning-button
+                    label="Save"
+                    variant="brand"
+                    onclick={handleSave}
+                    disabled={isPristine || hasInvalidFields}
+                ></lightning-button>
+                <lightning-button
+                    label="Cancel"
+                    variant="neutral"
+                    class="slds-m-left_small"
+                    onclick={handleCancel}
+                    disabled={isPristine}
+                ></lightning-button>
+            </div>
+        </div>
+    </lightning-card>
+</template>
+
+
+import { LightningElement, api, track } from 'lwc';
+import getCredentialRequest from '@salesforce/apex/PDMS_CRED_ReqFrameworkController.getCredentialRequest';
+import updateCredentialRequest from '@salesforce/apex/PDMS_CRED_ReqFrameworkController.updateCredentialRequest';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+
+export default class PdmsLwcStateRegulatoryNotifications extends LightningElement {
+    @api recordId;
+
+    @track fields = [];
+
+    original = {};
+
+    connectedCallback() {
+        getCredentialRequest({ recordId: this.recordId })
+            .then(result => {
+                this.fields = [
+                    this.createField('incomplete', 'Incomplete Credential Application', result.Incomplete_Cred_Application__c, result.Incomplete_Cred_Application_Sent_Date__c),
+                    this.createField('complete', 'Complete Credential Application', result.Complete_Cred_Application__c, result.Complete_Cred_Application_Sent_Date__c),
+                    this.createField('extended', 'Extended TAT', result.Extended_TAT__c, result.Extended_TAT_Sent_Date__c),
+                    this.createField('discontinued', 'Discontinued Incomplete Data Element', result.Discontinued_Incomplete_Data_Element__c, result.Discontinued_Incomplete_Data_Element_S__c)
+                ];
+
+                // Save original state for cancel/reset
+                this.fields.forEach(f => {
+                    this.original[f.id] = {
+                        checked: f.checked,
+                        value: f.value
+                    };
+                });
+            })
+            .catch(error => {
+                this.showError('Failed to load data: ' + (error.body?.message || error.message));
+            });
+    }
+
+    createField(id, label, checked, value) {
+        return {
+            id,
+            label,
+            dataId: `${id}Date`,
+            checked,
+            value: value || '',
+            disabled: !checked,
+            isInvalidDate: false, // Flag for future date validation
+            inputStyle: this.getInputStyle(checked && !value), // red if checked but no date
+            checkboxChange: (e) => this.handleCheckboxChange(id, e),
+            dateChange: (e) => this.handleDateChange(id, e),
+            openCalendar: (e) => this.openCalendar(e)
+        };
+    }
+
+    handleCheckboxChange(id, event) {
+        const checked = event.target.checked;
+        this.fields = this.fields.map(field => {
+            if (field.id === id) {
+                field.checked = checked;
+                field.disabled = !checked;
+                if (!checked) {
+                    // Clear date and invalid flag when unchecked
+                    field.value = '';
+                    field.isInvalidDate = false;
+                }
+                // Update border style: red if required and missing or invalid
+                const missingOrInvalid = checked && (!field.value || field.isInvalidDate);
+                field.inputStyle = this.getInputStyle(missingOrInvalid);
+                return field;
+            }
+            return field;
+        });
+    }
+
+    handleDateChange(id, event) {
+        const value = event.target.value;
+        this.fields = this.fields.map(field => {
+            if (field.id === id) {
+                field.value = value;
+
+                // Validate date not in future
+                if (value) {
+                    const selectedDate = new Date(value);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    selectedDate.setHours(0, 0, 0, 0);
+
+                    if (selectedDate > today) {
+                        field.isInvalidDate = true;
+                        this.showError('Date cannot be in the future');
+                    } else {
+                        field.isInvalidDate = false;
+                    }
+                } else {
+                    // No date means invalid if checked
+                    field.isInvalidDate = false;
+                }
+
+                // Update border style
+                const missingOrInvalid = field.checked && (!field.value || field.isInvalidDate);
+                field.inputStyle = this.getInputStyle(missingOrInvalid);
+            }
+            return field;
+        });
+    }
+
+    openCalendar(event) {
+        // Open native date picker when container clicked
+        const input = event.currentTarget.querySelector('input[type="date"]');
+        if (input && typeof input.showPicker === 'function') {
+            input.showPicker();
+        }
+        input?.focus();
+    }
+
+    getInputStyle(missingRequired) {
+        // Red border if missing required or invalid, else normal border
+        return `
+            width: 100%;
+            height: 36px;
+            padding: 0 0.75rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            border: 1px solid ${missingRequired ? 'red' : '#ccc'};
+            background-color: white;
+            box-sizing: border-box;
+        `;
+    }
+
+    get isPristine() {
+        // Returns true if all fields unchanged from original
+        return this.fields.every(field =>
+            field.checked === this.original[field.id]?.checked &&
+            field.value === this.original[field.id]?.value
+        );
+    }
+
+    get hasInvalidFields() {
+        // True if any checked field is missing date or has invalid date
+        return this.fields.some(field => field.checked && (!field.value || field.isInvalidDate));
+    }
+
+    handleSave() {
+        if (this.hasInvalidFields) {
+            this.showError('Please fix all errors before saving.');
+            return;
+        }
+
+        // Extra check for required dates, can be skipped if redundant
+        for (let field of this.fields) {
+            if (field.checked && !field.value) {
+                this.showError(`Date is required for ${field.label}`);
+                return;
+            }
+        }
+
+        // Prepare payload
+        const payload = {
+            recordId: this.recordId,
+            incomplete: this.getFieldValue('incomplete'),
+            incompleteDate: this.getFieldDate('incomplete'),
+            complete: this.getFieldValue('complete'),
+            completeDate: this.getFieldDate('complete'),
+            extended: this.getFieldValue('extended'),
+            extendedDate: this.getFieldDate('extended'),
+            discontinued: this.getFieldValue('discontinued'),
+            discontinuedDate: this.getFieldDate('discontinued')
+        };
+
+        updateCredentialRequest(payload)
+            .then(() => {
+                this.showSuccess('Credential Request updated.');
+                // Update original to new state after save
+                this.fields.forEach(f => {
+                    this.original[f.id] = {
+                        checked: f.checked,
+                        value: f.value
+                    };
+                });
+            })
+            .catch(err => {
+                this.showError('Update failed: ' + (err.body?.message || err.message));
+            });
+    }
+
+    handleCancel() {
+        // Restore all fields to original state
+        this.fields = this.fields.map(field => {
+            const orig = this.original[field.id];
+            const checked = orig.checked;
+            const value = orig.value || '';
+
+            return {
+                ...field,
+                checked,
+                value,
+                disabled: !checked,
+                isInvalidDate: false,
+                inputStyle: this.getInputStyle(checked && !value)
+            };
+        });
+    }
+
+    getFieldValue(id) {
+        return this.fields.find(f => f.id === id)?.checked || false;
+    }
+
+    getFieldDate(id) {
+        const field = this.fields.find(f => f.id === id);
+        return field?.checked ? field.value : null;
+    }
+
+    showSuccess(msg) {
+        this.dispatchEvent(new ShowToastEvent({ title: 'Success', message: msg, variant: 'success' }));
+    }
+
+    showError(msg) {
+        this.dispatchEvent(new ShowToastEvent({ title: 'Error', message: msg, variant: 'error' }));
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { LightningElement, api, track } from 'lwc';
+import getCredentialRequest from '@salesforce/apex/PDMS_CRED_ReqFrameworkController.getCredentialRequest';
+import updateCredentialRequest from '@salesforce/apex/PDMS_CRED_ReqFrameworkController.updateCredentialRequest';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+
+export default class PdmsLwcStateRegulatoryNotifications extends LightningElement {
+    @api recordId;
+
+    @track fields = [];
+
+    original = {};
+
+    connectedCallback() {
+        getCredentialRequest({ recordId: this.recordId }).then(result => {
+            this.fields = [
+                this.createField('incomplete', 'Incomplete Credential Application', result.Incomplete_Cred_Application__c, result.Incomplete_Cred_Application_Sent_Date__c),
+                this.createField('complete', 'Complete Credential Application', result.Complete_Cred_Application__c, result.Complete_Cred_Application_Sent_Date__c),
+                this.createField('extended', 'Extended TAT', result.Extended_TAT__c, result.Extended_TAT_Sent_Date__c),
+                this.createField('discontinued', 'Discontinued Incomplete Data Element', result.Discontinued_Incomplete_Data_Element__c, result.Discontinued_Incomplete_Data_Element_S__c)
+            ];
+
+            this.fields.forEach(f => {
+                this.original[f.id] = {
+                    checked: f.checked,
+                    value: f.value
+                };
+            });
+        }).catch(error => {
+            this.showError('Failed to load data: ' + error.body.message);
+        });
+    }
+
+    createField(id, label, checked, value) {
+        return {
+            id,
+            label,
+            dataId: `${id}Date`,
+            checked,
+            value,
+            disabled: !checked,
+            inputClass: '',
+            inputStyle: this.getInputStyle(false),
+            checkboxChange: (e) => this.handleCheckboxChange(id, e),
+            dateChange: (e) => this.handleDateChange(id, e),
+            openCalendar: (e) => this.openCalendar(e)
+        };
+    }
+
+    handleCheckboxChange(id, event) {
+        const checked = event.target.checked;
+        this.fields = this.fields.map(field => {
+            if (field.id === id) {
+                field.checked = checked;
+                field.disabled = !checked;
+                field.inputStyle = this.getInputStyle(checked && !field.value);
+                return field;
+            }
+            return field;
+        });
+    }
+
+    handleDateChange(id, event) {
+        const value = event.target.value;
+        this.fields = this.fields.map(field => {
+            if (field.id === id) {
+                field.value = value;
+                field.inputStyle = this.getInputStyle(field.checked && !value);
+            }
+            return field;
+        });
+        const selectedDate = new Date(value);
+        const today = new Date();
+        console.log('Today ' +today);
+        console.log('selectedDate ' + selectedDate);
+        today.setHours(0, 0, 0, 0);
+        selectedDate.setHours(0, 0, 0, 0);
+
+        if (selectedDate > today) {
+            //this.allowIncomplete = true;
+            this.showError('Date cannot be in the future');
+        } else {
+            //this.allowIncomplete = false;
+        }
+    }
+
+    openCalendar(event) {
+        const input = event.currentTarget.querySelector('input');
+        input?.showPicker?.();
+        input?.focus();
+    }
+
+    getInputStyle(missingRequired) {
+        return `
+            width: 100%;
+            height: 36px;
+            padding: 0 0.75rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            border: 1px solid ${missingRequired ? 'red' : '#ccc'};
+            background-color: white;
+        `;
+    }
+
+    get isPristine() {
+        return this.fields.every(field => 
+            field.checked === this.original[field.id]?.checked &&
+            field.value === this.original[field.id]?.value
+        );
+    }
+
+    handleSave() {
+        for (let field of this.fields) {
+            if (field.checked && !field.value) {
+                this.showError(`Date is required for ${field.label}`);
+                return;
+            }
+        }
+
+        const payload = {
+            recordId: this.recordId,
+            incomplete: this.getFieldValue('incomplete'),
+            incompleteDate: this.getFieldDate('incomplete'),
+            complete: this.getFieldValue('complete'),
+            completeDate: this.getFieldDate('complete'),
+            extended: this.getFieldValue('extended'),
+            extendedDate: this.getFieldDate('extended'),
+            discontinued: this.getFieldValue('discontinued'),
+            discontinuedDate: this.getFieldDate('discontinued')
+        };
+
+        updateCredentialRequest(payload)
+            .then(() => this.showSuccess('Credential Request updated.'))
+            .catch(err => this.showError('Update failed: ' + err.body.message));
+    }
+
+    handleCancel() {
+        this.fields = this.fields.map(field => {
+            return {
+                ...field,
+                checked: this.original[field.id].checked,
+                value: this.original[field.id].value,
+                disabled: !this.original[field.id].checked,
+                inputStyle: this.getInputStyle(this.original[field.id].checked && !this.original[field.id].value)
+            };
+        });
+    }
+
+    getFieldValue(id) {
+        return this.fields.find(f => f.id === id)?.checked || false;
+    }
+
+    getFieldDate(id) {
+        const field = this.fields.find(f => f.id === id);
+        return field?.checked ? field.value : null;
+    }
+
+    showSuccess(msg) {
+        this.dispatchEvent(new ShowToastEvent({ title: 'Success', message: msg, variant: 'success' }));
+    }
+
+    showError(msg) {
+        this.dispatchEvent(new ShowToastEvent({ title: 'Error', message: msg, variant: 'error' }));
+    }
+}
+
+<template>
+    <lightning-card title="State Regulatory Notifications" icon-name="standard:date_input">
+        <div class="slds-p-around_medium">
+            <template for:each={fields} for:item="item">
+                <div key={item.id} class="slds-grid slds-wrap slds-gutters slds-m-bottom_small">
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-input type="checkbox" label={item.label}
+                                         checked={item.checked} onchange={item.checkboxChange}></lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2">
+                        <div onclick={item.openCalendar}>
+                            <input type="date"
+                                   value={item.value}
+                                   required={item.checked}
+                                   disabled={item.disabled}
+                                   onchange={item.dateChange}
+                                   class={item.inputClass}
+                                   style={item.inputStyle}
+                                   data-id={item.dataId} 
+                                   placeholder=""/>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <div class="slds-m-top_medium slds-text-align_center">
+                <lightning-button label="Save" variant="brand" onclick={handleSave} disabled={isPristine}></lightning-button>
+                <lightning-button label="Cancel" variant="neutral" class="slds-m-left_small" onclick={handleCancel} disabled={isPristine}></lightning-button>
+            </div>
+        </div>
+    </lightning-card>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { LightningElement, api, track } from 'lwc';
+import getCredentialRequest from '@salesforce/apex/PDMS_CRED_ReqFrameworkController.getCredentialRequest';
+import updateCredentialRequest from '@salesforce/apex/PDMS_CRED_ReqFrameworkController.updateCredentialRequest';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+
+export default class PdmsLwcStateRegulatoryNotifications extends LightningElement {
+    @api recordId;
+
+    @track incomplete = false;
+    @track complete = false;
+    @track extended = false;
+    @track discontinued = false;
+
+    @track incompleteDate = '';
+    @track completeDate = '';
+    @track extendedDate = '';
+    @track discontinuedDate = '';
+
+    original = {};
+
+    connectedCallback() {
+        getCredentialRequest({ recordId: this.recordId })
+            .then(result => {
+                this.incomplete = result.Incomplete_Cred_Application__c;
+                this.incompleteDate = result.Incomplete_Cred_Application_Sent_Date__c;
+                this.complete = result.Complete_Cred_Application__c;
+                this.completeDate = result.Complete_Cred_Application_Sent_Date__c;
+                this.extended = result.Extended_TAT__c;
+                this.extendedDate = result.Extended_TAT_Sent_Date__c;
+                this.discontinued = result.Discontinued_Incomplete_Data_Element__c;
+                this.discontinuedDate = result.Discontinued_Incomplete_Data_Element_S__c;
+
+                this.original = {
+                    incomplete: this.incomplete,
+                    incompleteDate: this.incompleteDate,
+                    complete: this.complete,
+                    completeDate: this.completeDate,
+                    extended: this.extended,
+                    extendedDate: this.extendedDate,
+                    discontinued: this.discontinued,
+                    discontinuedDate: this.discontinuedDate
+                };
+            })
+            .catch(err => this.showError(err.body.message));
+    }
+
+    get notIncomplete() { return !this.incomplete; }
+    get notComplete() { return !this.complete; }
+    get notExtended() { return !this.extended; }
+    get notDiscontinued() { return !this.discontinued; }
+
+    get isPristine() {
+        return (
+            this.incomplete === this.original.incomplete &&
+            this.incompleteDate === this.original.incompleteDate &&
+            this.complete === this.original.complete &&
+            this.completeDate === this.original.completeDate &&
+            this.extended === this.original.extended &&
+            this.extendedDate === this.original.extendedDate &&
+            this.discontinued === this.original.discontinued &&
+            this.discontinuedDate === this.original.discontinuedDate
+        );
+    }
+
+    handleCheckboxChange(event) {
+        const type = event.target.dataset.id;
+        this[type] = event.target.checked;
+
+        if (!this[type]) {
+            this[`${type}Date`] = '';
+            this.updateBorder(type, false);
+        }
+    }
+
+    handleDateChange(event) {
+        const type = event.target.dataset.id;
+        this[`${type}Date`] = event.target.value;
+        this.updateBorder(type, false);
+    }
+
+    handleInputClick(event) {
+        event.target.showPicker?.();
+    }
+
+    updateBorder(type, showError) {
+        const input = this.template.querySelector(`[data-id="${type}Date"]`);
+        if (input) {
+            input.style.border = showError ? '2px solid red' : '1px solid #ccc';
+        }
+    }
+
+    handleSave() {
+        const validations = ['incomplete', 'complete', 'extended', 'discontinued'];
+        let hasError = false;
+
+        validations.forEach(type => {
+            if (this[type] && !this[`${type}Date`]) {
+                this.updateBorder(type, true);
+                hasError = true;
+            }
+        });
+
+        if (hasError) {
+            this.showError('Please fill all required dates for checked options.');
+            return;
+        }
+
+        updateCredentialRequest({
+            recordId: this.recordId,
+            incomplete: this.incomplete,
+            incompleteDate: this.incomplete ? this.incompleteDate : null,
+            complete: this.complete,
+            completeDate: this.complete ? this.completeDate : null,
+            extended: this.extended,
+            extendedDate: this.extended ? this.extendedDate : null,
+            discontinued: this.discontinued,
+            discontinuedDate: this.discontinued ? this.discontinuedDate : null
+        })
+            .then(() => this.showSuccess('Updated successfully.'))
+            .catch(err => this.showError(err.body.message));
+    }
+
+    handleCancel() {
+        Object.assign(this, this.original);
+        ['incomplete', 'complete', 'extended', 'discontinued'].forEach(type => {
+            this.updateBorder(type, false);
+        });
+    }
+
+    showSuccess(msg) {
+        this.dispatchEvent(new ShowToastEvent({ title: 'Success', message: msg, variant: 'success' }));
+    }
+
+    showError(msg) {
+        this.dispatchEvent(new ShowToastEvent({ title: 'Error', message: msg, variant: 'error' }));
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<template>
+    <lightning-card title="State Regulatory Notifications" icon-name="standard:date_input">
+        <div class="slds-p-around_medium">
+            <template for:each={fields} for:item="item">
+                <div key={item.id} class="slds-grid slds-wrap slds-gutters slds-m-bottom_small">
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-input type="checkbox" label={item.label}
+                                         checked={item.checked} onchange={item.checkboxChange}></lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2">
+                        <div onclick={item.openCalendar}>
+                            <input type="date"
+                                   value={item.value}
+                                   required={item.checked}
+                                   disabled={item.disabled}
+                                   onchange={item.dateChange}
+                                   class={item.inputClass}
+                                   style={item.inputStyle}
+                                   data-id={item.dataId} />
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <div class="slds-m-top_medium slds-text-align_center">
+                <lightning-button label="Save" variant="brand" onclick={handleSave} disabled={isPristine}></lightning-button>
+                <lightning-button label="Cancel" variant="neutral" class="slds-m-left_small" onclick={handleCancel} disabled={isPristine}></lightning-button>
+            </div>
+        </div>
+    </lightning-card>
+</template>
+
+
+import { LightningElement, api, track } from 'lwc';
+import getCredentialRequest from '@salesforce/apex/PDMS_CRED_ReqFrameworkController.getCredentialRequest';
+import updateCredentialRequest from '@salesforce/apex/PDMS_CRED_ReqFrameworkController.updateCredentialRequest';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+
+export default class PdmsLwcStateRegulatoryNotifications extends LightningElement {
+    @api recordId;
+
+    @track fields = [];
+
+    original = {};
+
+    connectedCallback() {
+        getCredentialRequest({ recordId: this.recordId }).then(result => {
+            this.fields = [
+                this.createField('incomplete', 'Incomplete Credential Application', result.Incomplete_Cred_Application__c, result.Incomplete_Cred_Application_Sent_Date__c),
+                this.createField('complete', 'Complete Credential Application', result.Complete_Cred_Application__c, result.Complete_Cred_Application_Sent_Date__c),
+                this.createField('extended', 'Extended TAT', result.Extended_TAT__c, result.Extended_TAT_Sent_Date__c),
+                this.createField('discontinued', 'Discontinued Incomplete Data Element', result.Discontinued_Incomplete_Data_Element__c, result.Discontinued_Incomplete_Data_Element_S__c)
+            ];
+
+            this.fields.forEach(f => {
+                this.original[f.id] = {
+                    checked: f.checked,
+                    value: f.value
+                };
+            });
+        }).catch(error => {
+            this.showError('Failed to load data: ' + error.body.message);
+        });
+    }
+
+    createField(id, label, checked, value) {
+        return {
+            id,
+            label,
+            dataId: `${id}Date`,
+            checked,
+            value,
+            disabled: !checked,
+            inputClass: '',
+            inputStyle: this.getInputStyle(false),
+            checkboxChange: (e) => this.handleCheckboxChange(id, e),
+            dateChange: (e) => this.handleDateChange(id, e),
+            openCalendar: (e) => this.openCalendar(e)
+        };
+    }
+
+    handleCheckboxChange(id, event) {
+        const checked = event.target.checked;
+        this.fields = this.fields.map(field => {
+            if (field.id === id) {
+                field.checked = checked;
+                field.disabled = !checked;
+                field.inputStyle = this.getInputStyle(checked && !field.value);
+                return field;
+            }
+            return field;
+        });
+    }
+
+    handleDateChange(id, event) {
+        const value = event.target.value;
+        this.fields = this.fields.map(field => {
+            if (field.id === id) {
+                field.value = value;
+                field.inputStyle = this.getInputStyle(field.checked && !value);
+            }
+            return field;
+        });
+    }
+
+    openCalendar(event) {
+        const input = event.currentTarget.querySelector('input');
+        input?.showPicker?.();
+        input?.focus();
+    }
+
+    getInputStyle(missingRequired) {
+        return `
+            width: 100%;
+            height: 36px;
+            padding: 0 0.75rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            border: 1px solid ${missingRequired ? 'red' : '#ccc'};
+            background-color: white;
+        `;
+    }
+
+    get isPristine() {
+        return this.fields.every(field => 
+            field.checked === this.original[field.id]?.checked &&
+            field.value === this.original[field.id]?.value
+        );
+    }
+
+    handleSave() {
+        for (let field of this.fields) {
+            if (field.checked && !field.value) {
+                this.showError(`Date is required for ${field.label}`);
+                return;
+            }
+        }
+
+        const payload = {
+            recordId: this.recordId,
+            incomplete: this.getFieldValue('incomplete'),
+            incompleteDate: this.getFieldDate('incomplete'),
+            complete: this.getFieldValue('complete'),
+            completeDate: this.getFieldDate('complete'),
+            extended: this.getFieldValue('extended'),
+            extendedDate: this.getFieldDate('extended'),
+            discontinued: this.getFieldValue('discontinued'),
+            discontinuedDate: this.getFieldDate('discontinued')
+        };
+
+        updateCredentialRequest(payload)
+            .then(() => this.showSuccess('Credential Request updated.'))
+            .catch(err => this.showError('Update failed: ' + err.body.message));
+    }
+
+    handleCancel() {
+        this.fields = this.fields.map(field => {
+            return {
+                ...field,
+                checked: this.original[field.id].checked,
+                value: this.original[field.id].value,
+                disabled: !this.original[field.id].checked,
+                inputStyle: this.getInputStyle(this.original[field.id].checked && !this.original[field.id].value)
+            };
+        });
+    }
+
+    getFieldValue(id) {
+        return this.fields.find(f => f.id === id)?.checked || false;
+    }
+
+    getFieldDate(id) {
+        const field = this.fields.find(f => f.id === id);
+        return field?.checked ? field.value : null;
+    }
+
+    showSuccess(msg) {
+        this.dispatchEvent(new ShowToastEvent({ title: 'Success', message: msg, variant: 'success' }));
+    }
+
+    showError(msg) {
+        this.dispatchEvent(new ShowToastEvent({ title: 'Error', message: msg, variant: 'error' }));
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// PdmsLwcStateRegulatoryNotifications.js
+import { LightningElement, api, track } from 'lwc';
+import getCredentialRequest from '@salesforce/apex/PDMS_CRED_ReqFrameworkController.getCredentialRequest';
+import updateCredentialRequest from '@salesforce/apex/PDMS_CRED_ReqFrameworkController.updateCredentialRequest';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+
+export default class PdmsLwcStateRegulatoryNotifications extends LightningElement {
+    @api recordId;
+
+    @track incomplete = false;
+    @track incompleteDate = '';
+    @track complete = false;
+    @track completeDate = '';
+    @track extended = false;
+    @track extendedDate = '';
+    @track discontinued = false;
+    @track discontinuedDate = '';
+
+    @track inputClass = 'slds-input';
+    @track allowIncomplete = false;
+
+    original = {};
+
+    connectedCallback() {
+        getCredentialRequest({ recordId: this.recordId })
+            .then(result => {
+                this.incomplete = result.Incomplete_Cred_Application__c;
+                this.incompleteDate = result.Incomplete_Cred_Application_Sent_Date__c;
+                this.complete = result.Complete_Cred_Application__c;
+                this.completeDate = result.Complete_Cred_Application_Sent_Date__c;
+                this.extended = result.Extended_TAT__c;
+                this.extendedDate = result.Extended_TAT_Sent_Date__c;
+                this.discontinued = result.Discontinued_Incomplete_Data_Element__c;
+                this.discontinuedDate = result.Discontinued_Incomplete_Data_Element_S__c;
+
+                this.original = {
+                    incomplete: this.incomplete,
+                    incompleteDate: this.incompleteDate,
+                    complete: this.complete,
+                    completeDate: this.completeDate,
+                    extended: this.extended,
+                    extendedDate: this.extendedDate,
+                    discontinued: this.discontinued,
+                    discontinuedDate: this.discontinuedDate
+                };
+            })
+            .catch(err => {
+                this.showError('Failed to load record: ' + err.body.message);
+            });
+    }
+
+    handleIncompleteChange(event) {
+        this.incomplete = event.target.checked;
+        if (!this.incomplete) {
+            this.incompleteDate = '';
+        }
+    }
+
+    handleIncompleteDateChange(event) {
+        this.incompleteDate = event.target.value;
+        const selectedDate = new Date(this.incompleteDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (selectedDate > today) {
+            this.allowIncomplete = true;
+            this.showError('Date cannot be in the future');
+        } else {
+            this.allowIncomplete = false;
+        }
+    }
+
+    handleCompleteChange(event) {
+        this.complete = event.target.checked;
+        if (!this.complete) {
+            this.completeDate = '';
+        }
+    }
+
+    handleCompleteDateChange(event) {
+        this.completeDate = event.target.value;
+    }
+
+    handleExtendedChange(event) {
+        this.extended = event.target.checked;
+        if (!this.extended) {
+            this.extendedDate = '';
+        }
+    }
+
+    handleExtendedDateChange(event) {
+        this.extendedDate = event.target.value;
+    }
+
+    handleDiscontinuedChange(event) {
+        this.discontinued = event.target.checked;
+        if (!this.discontinued) {
+            this.discontinuedDate = '';
+        }
+    }
+
+    handleDiscontinuedDateChange(event) {
+        this.discontinuedDate = event.target.value;
+    }
+
+    handleDateClick(event) {
+        const input = event.currentTarget.querySelector('input');
+        input?.showPicker?.();
+        input?.focus();
+    }
+
+    handleInvalid(event) {
+        event.target.classList.add('slds-has-error');
+    }
+
+    clearError(event) {
+        event.target.classList.remove('slds-has-error');
+    }
+
+    handleSave() {
+        if (this.incomplete && !this.incompleteDate) {
+            this.showError('Date is mandatory for Incomplete Credential Application');
+            return;
+        }
+        if (this.complete && !this.completeDate) {
+            this.showError('Date is mandatory for Complete Credential Application');
+            return;
+        }
+        if (this.extended && !this.extendedDate) {
+            this.showError('Date is mandatory for Extended TAT');
+            return;
+        }
+        if (this.discontinued && !this.discontinuedDate) {
+            this.showError('Date is mandatory for Discontinued Incomplete Data Element');
+            return;
+        }
+        if (this.allowIncomplete) {
+            this.showError('Incomplete date cannot be in the future');
+            return;
+        }
+
+        updateCredentialRequest({
+            recordId: this.recordId,
+            incomplete: this.incomplete,
+            incompleteDate: this.incomplete ? this.incompleteDate : null,
+            complete: this.complete,
+            completeDate: this.complete ? this.completeDate : null,
+            extended: this.extended,
+            extendedDate: this.extended ? this.extendedDate : null,
+            discontinued: this.discontinued,
+            discontinuedDate: this.discontinued ? this.discontinuedDate : null
+        })
+            .then(() => {
+                this.showSuccess('Credential Request updated.');
+            })
+            .catch(err => {
+                this.showError('Update failed: ' + err.body.message);
+            });
+    }
+
+    handleCancel() {
+        Object.assign(this, this.original);
+    }
+
+    showSuccess(msg) {
+        this.dispatchEvent(new ShowToastEvent({ title: 'Success', message: msg, variant: 'success' }));
+    }
+
+    showError(msg) {
+        this.dispatchEvent(new ShowToastEvent({ title: 'Error', message: msg, variant: 'error' }));
+    }
+
+    get notIncomplete() {
+        return !this.incomplete;
+    }
+    get notComplete() {
+        return !this.complete;
+    }
+    get notExtended() {
+        return !this.extended;
+    }
+    get notDiscontinued() {
+        return !this.discontinued;
+    }
+
+    get isPristine() {
+        return (
+            this.incomplete === this.original.incomplete &&
+            this.incompleteDate === this.original.incompleteDate &&
+            this.complete === this.original.complete &&
+            this.completeDate === this.original.completeDate &&
+            this.extended === this.original.extended &&
+            this.extendedDate === this.original.extendedDate &&
+            this.discontinued === this.original.discontinued &&
+            this.discontinuedDate === this.original.discontinuedDate
+        );
+    }
+}
+
+
+<template>
+    <lightning-card title="State Regulatory Notifications" icon-name="standard:date_input">
+        <div class="slds-p-around_medium">
+            <div class="slds-grid slds-wrap slds-gutters">
+
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input type="checkbox" label="Incomplete Credential Application"
+                                     checked={incomplete} onchange={handleIncompleteChange}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <input type="date" 
+                           value={incompleteDate}
+                           disabled={notIncomplete}
+                           required={incomplete}
+                           class={incompleteClass}
+                           oninput={clearIncompleteError}
+                           onchange={handleIncompleteDateChange}
+                           oninvalid={handleIncompleteInvalid}
+                           onclick={openIncompleteCalendar}
+                           style="width: 100%; height: 36px; padding: 0 0.75rem; border-radius: 0.25rem; border: 1px solid #ccc; font-size: 0.875rem;"
+                           data-id="incompleteDate"/>
+                </div>
+
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input type="checkbox" label="Complete Credential Application"
+                                     checked={complete} onchange={handleCompleteChange}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <input type="date" 
+                           value={completeDate}
+                           disabled={notComplete}
+                           required={complete}
+                           class={completeClass}
+                           oninput={clearCompleteError}
+                           onchange={handleCompleteDateChange}
+                           oninvalid={handleCompleteInvalid}
+                           onclick={openCompleteCalendar}
+                           style="width: 100%; height: 36px; padding: 0 0.75rem; border-radius: 0.25rem; border: 1px solid #ccc; font-size: 0.875rem;"
+                           data-id="completeDate"/>
+                </div>
+
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input type="checkbox" label="Extended TAT"
+                                     checked={extended} onchange={handleExtendedChange}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <input type="date" 
+                           value={extendedDate}
+                           disabled={notExtended}
+                           required={extended}
+                           class={extendedClass}
+                           oninput={clearExtendedError}
+                           onchange={handleExtendedDateChange}
+                           oninvalid={handleExtendedInvalid}
+                           onclick={openExtendedCalendar}
+                           style="width: 100%; height: 36px; padding: 0 0.75rem; border-radius: 0.25rem; border: 1px solid #ccc; font-size: 0.875rem;"
+                           data-id="extendedDate"/>
+                </div>
+
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input type="checkbox" label="Discontinued Incomplete Data Element"
+                                     checked={discontinued} onchange={handleDiscontinuedChange}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <input type="date" 
+                           value={discontinuedDate}
+                           disabled={notDiscontinued}
+                           required={discontinued}
+                           class={discontinuedClass}
+                           oninput={clearDiscontinuedError}
+                           onchange={handleDiscontinuedDateChange}
+                           oninvalid={handleDiscontinuedInvalid}
+                           onclick={openDiscontinuedCalendar}
+                           style="width: 100%; height: 36px; padding: 0 0.75rem; border-radius: 0.25rem; border: 1px solid #ccc; font-size: 0.875rem;"
+                           data-id="discontinuedDate"/>
+                </div>
+            </div>
+
+            <div class="slds-m-top_medium slds-text-align_center">
+                <lightning-button label="Save" variant="brand" onclick={handleSave} disabled={isPristine}></lightning-button>
+                <lightning-button label="Cancel" variant="neutral" class="slds-m-left_small" onclick={handleCancel} disabled={isPristine}></lightning-button>
+            </div>
+        </div>
+    </lightning-card>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+wokring some how
+
+<template>
+    <lightning-card title="State Regulatory Notifications" icon-name="standard:date_input">
+        <div class="slds-p-around_medium">
+            <div class="slds-grid slds-wrap slds-gutters">
+
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input type="checkbox" label="Incomplete Credential Application"
+                                     checked={incomplete} onchange={handleIncompleteChange}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <input type="date" 
+                           value={incompleteDate}
+                           disabled={notIncomplete}
+                           required={incomplete}
+                           class={incompleteClass}
+                           oninput={clearIncompleteError}
+                           onchange={handleIncompleteDateChange}
+                           oninvalid={handleIncompleteInvalid}
+                           onclick={openIncompleteCalendar}
+                           placeholder="MM/DD/YYYY" 
+                           data-id="incompleteDate"/>
+                </div>
+
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input type="checkbox" label="Complete Credential Application"
+                                     checked={complete} onchange={handleCompleteChange}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <input type="date" 
+                           value={completeDate}
+                           disabled={notComplete}
+                           required={complete}
+                           class={completeClass}
+                           oninput={clearCompleteError}
+                           onchange={handleCompleteDateChange}
+                           oninvalid={handleCompleteInvalid}
+                           placeholder="MM/DD/YYYY" 
+                           data-id="completeDate"/>
+                </div>
+
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input type="checkbox" label="Extended TAT"
+                                     checked={extended} onchange={handleExtendedChange}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <input type="date" 
+                           value={extendedDate}
+                           disabled={notExtended}
+                           required={extended}
+                           class={extendedClass}
+                           oninput={clearExtendedError}
+                           onchange={handleExtendedDateChange}
+                           oninvalid={handleExtendedInvalid}
+                           placeholder="MM/DD/YYYY" 
+                           data-id="extendedDate"/>
+                </div>
+
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input type="checkbox" label="Discontinued Incomplete Data Element"
+                                     checked={discontinued} onchange={handleDiscontinuedChange}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                    <input type="date" 
+                           value={discontinuedDate}
+                           disabled={notDiscontinued}
+                           required={discontinued}
+                           class={discontinuedClass}
+                           oninput={clearDiscontinuedError}
+                           onchange={handleDiscontinuedDateChange}
+                           oninvalid={handleDiscontinuedInvalid}
+                           placeholder="MM/DD/YYYY" 
+                           data-id="discontinuedDate"/>
+                </div>
+            </div>
+
+            <div class="slds-m-top_medium slds-text-align_center">
+                <lightning-button label="Save" variant="brand" onclick={handleSave} disabled={isPristine}></lightning-button>
+                <lightning-button label="Cancel" variant="neutral" class="slds-m-left_small" onclick={handleCancel} disabled={isPristine}></lightning-button>
+            </div>
+        </div>
+    </lightning-card>
+</template>
+
+js
+
+import { LightningElement, api, track } from 'lwc';
+import getCredentialRequest from '@salesforce/apex/PDMS_CRED_ReqFrameworkController.getCredentialRequest';
+import updateCredentialRequest from '@salesforce/apex/PDMS_CRED_ReqFrameworkController.updateCredentialRequest';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+
+export default class Pdms_lwc_State_Regulatory_Notifications extends LightningElement {
+
+    @api recordId;
+
+    @track incomplete = false;
+    @track incompleteDate = '';
+    @track complete = false;
+    @track completeDate = '';
+    @track extended = false;
+    @track extendedDate = '';
+    @track discontinued = false;
+    @track discontinuedDate = '';
+
+    @track incompleteClass = 'slds-input';
+    @track completeClass = 'slds-input';
+    @track extendedClass = 'slds-input';
+    @track discontinuedClass = 'slds-input';
+
+    original = {};
+
+    connectedCallback() {
+        getCredentialRequest({ recordId: this.recordId })
+            .then(result => {
+                this.incomplete = result.Incomplete_Cred_Application__c;
+                this.incompleteDate = result.Incomplete_Cred_Application_Sent_Date__c;
+                this.complete = result.Complete_Cred_Application__c;
+                this.completeDate = result.Complete_Cred_Application_Sent_Date__c;
+                this.extended = result.Extended_TAT__c;
+                this.extendedDate = result.Extended_TAT_Sent_Date__c;
+                this.discontinued = result.Discontinued_Incomplete_Data_Element__c;
+                this.discontinuedDate = result.Discontinued_Incomplete_Data_Element_S__c;
+
+                this.original = JSON.parse(JSON.stringify({
+                    incomplete: this.incomplete,
+                    incompleteDate: this.incompleteDate,
+                    complete: this.complete,
+                    completeDate: this.completeDate,
+                    extended: this.extended,
+                    extendedDate: this.extendedDate,
+                    discontinued: this.discontinued,
+                    discontinuedDate: this.discontinuedDate
+                }));
+            })
+            .catch(error => this.showError('Failed to load record: ' + error.body.message));
+    }
+
+    // Utility: Compare today
+    isFutureDate(dateStr) {
+        const selectedDate = new Date(dateStr);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return selectedDate > today;
+    }
+
+    showError(msg) {
+        this.dispatchEvent(new ShowToastEvent({ title: 'Error', message: msg, variant: 'error' }));
+    }
+
+    showSuccess(msg) {
+        this.dispatchEvent(new ShowToastEvent({ title: 'Success', message: msg, variant: 'success' }));
+    }
+
+    // Common Error Methods
+    handleInvalidHelper(field) {
+        this[`${field}Class`] = 'slds-input slds-has-error';
+    }
+
+    clearErrorHelper(field) {
+        this[`${field}Class`] = 'slds-input';
+    }
+
+    openIncompleteCalendar() {
+        const el = this.template.querySelector('input[data-id="incompleteDate"]');
+        el.showPicker?.();
+        el.focus();
+    }
+
+    // Incomplete Handlers
+    handleIncompleteChange(e) {
+        this.incomplete = e.target.checked;
+        if (!this.incomplete) this.incompleteDate = '';
+    }
+
+    handleIncompleteDateChange(e) {
+        this.incompleteDate = e.target.value;
+        if (this.isFutureDate(this.incompleteDate)) {
+            this.showError('Date cannot be in the future');
+            this.incompleteDate = '';
+        }
+    }
+
+    handleIncompleteInvalid() {
+        this.handleInvalidHelper('incomplete');
+    }
+
+    clearIncompleteError() {
+        this.clearErrorHelper('incomplete');
+    }
+
+    // Complete Handlers
+    handleCompleteChange(e) {
+        this.complete = e.target.checked;
+        if (!this.complete) this.completeDate = '';
+    }
+
+    handleCompleteDateChange(e) {
+        this.completeDate = e.target.value;
+    }
+
+    handleCompleteInvalid() {
+        this.handleInvalidHelper('complete');
+    }
+
+    clearCompleteError() {
+        this.clearErrorHelper('complete');
+    }
+
+    // Extended Handlers
+    handleExtendedChange(e) {
+        this.extended = e.target.checked;
+        if (!this.extended) this.extendedDate = '';
+    }
+
+    handleExtendedDateChange(e) {
+        this.extendedDate = e.target.value;
+    }
+
+    handleExtendedInvalid() {
+        this.handleInvalidHelper('extended');
+    }
+
+    clearExtendedError() {
+        this.clearErrorHelper('extended');
+    }
+
+    // Discontinued Handlers
+    handleDiscontinuedChange(e) {
+        this.discontinued = e.target.checked;
+        if (!this.discontinued) this.discontinuedDate = '';
+    }
+
+    handleDiscontinuedDateChange(e) {
+        this.discontinuedDate = e.target.value;
+    }
+
+    handleDiscontinuedInvalid() {
+        this.handleInvalidHelper('discontinued');
+    }
+
+    clearDiscontinuedError() {
+        this.clearErrorHelper('discontinued');
+    }
+
+    handleCancel() {
+        Object.assign(this, JSON.parse(JSON.stringify(this.original)));
+    }
+
+    handleSave() {
+        let missing = '';
+
+        if (this.incomplete && !this.incompleteDate) missing = 'Incomplete Date is required';
+        if (this.complete && !this.completeDate) missing = 'Complete Date is required';
+        if (this.extended && !this.extendedDate) missing = 'Extended Date is required';
+        if (this.discontinued && !this.discontinuedDate) missing = 'Discontinued Date is required';
+
+        if (missing) {
+            this.showError(missing);
+            return;
+        }
+
+        updateCredentialRequest({
+            recordId: this.recordId,
+            incomplete: this.incomplete,
+            incompleteDate: this.incomplete ? this.incompleteDate : null,
+            complete: this.complete,
+            completeDate: this.complete ? this.completeDate : null,
+            extended: this.extended,
+            extendedDate: this.extended ? this.extendedDate : null,
+            discontinued: this.discontinued,
+            discontinuedDate: this.discontinued ? this.discontinuedDate : null
+        }).then(() => {
+            this.showSuccess('Credential Request updated.');
+            this.original = JSON.parse(JSON.stringify({
+                incomplete: this.incomplete,
+                incompleteDate: this.incompleteDate,
+                complete: this.complete,
+                completeDate: this.completeDate,
+                extended: this.extended,
+                extendedDate: this.extendedDate,
+                discontinued: this.discontinued,
+                discontinuedDate: this.discontinuedDate
+            }));
+        }).catch(error => this.showError('Update failed: ' + error.body.message));
+    }
+
+    get notIncomplete() { return !this.incomplete; }
+    get notComplete() { return !this.complete; }
+    get notExtended() { return !this.extended; }
+    get notDiscontinued() { return !this.discontinued; }
+
+    get isPristine() {
+        return JSON.stringify({
+            incomplete: this.incomplete,
+            incompleteDate: this.incompleteDate,
+            complete: this.complete,
+            completeDate: this.completeDate,
+            extended: this.extended,
+            extendedDate: this.extendedDate,
+            discontinued: this.discontinued,
+            discontinuedDate: this.discontinuedDate
+        }) === JSON.stringify(this.original);
+    }
+}
+
+
+(GMT-04:00) Eastern Daylight Time (America/New_York) to ist currecnt time in oth
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { LightningElement, api, track } from 'lwc';
+import getCredentialRequest from '@salesforce/apex/PDMS_CRED_ReqFrameworkController.getCredentialRequest';
+import updateCredentialRequest from '@salesforce/apex/PDMS_CRED_ReqFrameworkController.updateCredentialRequest';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+
+export default class Pdms_lwc_State_Regulatory_Notifications extends LightningElement {
+    @api recordId;
+
+    @track incomplete = false;
+    @track incompleteDate = '';
+    @track complete = false;
+    @track completeDate = '';
+    @track extended = false;
+    @track extendedDate = '';
+    @track discontinued = false;
+    @track discontinuedDate = '';
+
+    @track allowIncomplete = false;
+    @track original = {};
+
+    connectedCallback() {
+        getCredentialRequest({ recordId: this.recordId })
+            .then(result => {
+                this.incomplete = result.Incomplete_Cred_Application__c;
+                this.incompleteDate = result.Incomplete_Cred_Application_Sent_Date__c;
+                this.complete = result.Complete_Cred_Application__c;
+                this.completeDate = result.Complete_Cred_Application_Sent_Date__c;
+                this.extended = result.Extended_TAT__c;
+                this.extendedDate = result.Extended_TAT_Sent_Date__c;
+                this.discontinued = result.Discontinued_Incomplete_Data_Element__c;
+                this.discontinuedDate = result.Discontinued_Incomplete_Data_Element_S__c;
+
+                this.original = {
+                    incomplete: this.incomplete,
+                    incompleteDate: this.incompleteDate,
+                    complete: this.complete,
+                    completeDate: this.completeDate,
+                    extended: this.extended,
+                    extendedDate: this.extendedDate,
+                    discontinued: this.discontinued,
+                    discontinuedDate: this.discontinuedDate
+                };
+            })
+            .catch(err => {
+                this.showError('Failed to load record: ' + err.body.message);
+            });
+    }
+
+    // Input Date Style Based on Error
+    get incompleteStyle() {
+        return this.allowIncomplete || (this.incomplete && !this.incompleteDate) ? 'border: 2px solid red; width: 200px; height: 36px;' : 'width: 200px; height: 36px;';
+    }
+    get completeStyle() {
+        return this.complete && !this.completeDate ? 'border: 2px solid red; width: 200px; height: 36px;' : 'width: 200px; height: 36px;';
+    }
+    get extendedStyle() {
+        return this.extended && !this.extendedDate ? 'border: 2px solid red; width: 200px; height: 36px;' : 'width: 200px; height: 36px;';
+    }
+    get discontinuedStyle() {
+        return this.discontinued && !this.discontinuedDate ? 'border: 2px solid red; width: 200px; height: 36px;' : 'width: 200px; height: 36px;';
+    }
+
+    openCalendarIncomplete() {
+        const input = this.template.querySelector('input[data-id="incompleteDate"]');
+        input?.showPicker?.();
+        input?.focus();
+    }
+    openCalendarComplete() {
+        const input = this.template.querySelector('input[data-id="completeDate"]');
+        input?.showPicker?.();
+        input?.focus();
+    }
+    openCalendarExtended() {
+        const input = this.template.querySelector('input[data-id="extendedDate"]');
+        input?.showPicker?.();
+        input?.focus();
+    }
+    openCalendarDiscontinued() {
+        const input = this.template.querySelector('input[data-id="discontinuedDate"]');
+        input?.showPicker?.();
+        input?.focus();
+    }
+
+    handleIncompleteChange(event) {
+        this.incomplete = event.target.checked;
+        if (!this.incomplete) {
+            this.incompleteDate = null;
+            this.allowIncomplete = false;
+        }
+    }
+    handleCompleteChange(event) {
+        this.complete = event.target.checked;
+        if (!this.complete) this.completeDate = null;
+    }
+    handleExtendedChange(event) {
+        this.extended = event.target.checked;
+        if (!this.extended) this.extendedDate = null;
+    }
+    handleDiscontinuedChange(event) {
+        this.discontinued = event.target.checked;
+        if (!this.discontinued) this.discontinuedDate = null;
+    }
+
+    handleIncompleteDateChange(event) {
+        this.incompleteDate = event.target.value;
+        const selectedDate = new Date(this.incompleteDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (selectedDate > today) {
+            this.allowIncomplete = true;
+            this.showError('Date cannot be in future');
+        } else {
+            this.allowIncomplete = false;
+        }
+    }
+    handleCompleteDateChange(event) {
+        this.completeDate = event.target.value;
+    }
+    handleExtendedDateChange(event) {
+        this.extendedDate = event.target.value;
+    }
+    handleDiscontinuedDateChange(event) {
+        this.discontinuedDate = event.target.value;
+    }
+
+    handleInvalidIncomplete(event) {
+        event.preventDefault();
+    }
+    clearIncompleteError() {
+        this.allowIncomplete = false;
+    }
+
+    handleInvalidComplete(event) { event.preventDefault(); }
+    clearCompleteError() {}
+    handleInvalidExtended(event) { event.preventDefault(); }
+    clearExtendedError() {}
+    handleInvalidDiscontinued(event) { event.preventDefault(); }
+    clearDiscontinuedError() {}
+
+    handleCancel() {
+        Object.assign(this, this.original);
+    }
+
+    handleSave() {
+        if (this.allowIncomplete) {
+            this.showError('Date cannot be in future');
+            return;
+        }
+
+        let missing = '';
+        if (this.incomplete && !this.incompleteDate) missing = 'Date is mandatory for Incomplete Notification';
+        if (this.complete && !this.completeDate) missing = 'Date is mandatory for Complete Notification';
+        if (this.extended && !this.extendedDate) missing = 'Date is mandatory for Extended Notification';
+        if (this.discontinued && !this.discontinuedDate) missing = 'Date is mandatory for Discontinued Notification';
+
+        if (missing) {
+            this.showError(missing);
+            return;
+        }
+
+        updateCredentialRequest({
+            recordId: this.recordId,
+            incomplete: this.incomplete,
+            incompleteDate: this.incomplete ? this.incompleteDate : null,
+            complete: this.complete,
+            completeDate: this.complete ? this.completeDate : null,
+            extended: this.extended,
+            extendedDate: this.extended ? this.extendedDate : null,
+            discontinued: this.discontinued,
+            discontinuedDate: this.discontinued ? this.discontinuedDate : null
+        })
+            .then(() => {
+                this.showSuccess('Credential Request updated.');
+                this.original = {
+                    incomplete: this.incomplete,
+                    incompleteDate: this.incompleteDate,
+                    complete: this.complete,
+                    completeDate: this.completeDate,
+                    extended: this.extended,
+                    extendedDate: this.extendedDate,
+                    discontinued: this.discontinued,
+                    discontinuedDate: this.discontinuedDate
+                };
+            })
+            .catch(err => {
+                this.showError('Update failed: ' + err.body.message);
+            });
+    }
+
+    get notIncomplete() { return !this.incomplete; }
+    get notComplete() { return !this.complete; }
+    get notExtended() { return !this.extended; }
+    get notDiscontinued() { return !this.discontinued; }
+
+    get isPristine() {
+        return (
+            this.incomplete === this.original.incomplete &&
+            this.incompleteDate === this.original.incompleteDate &&
+            this.complete === this.original.complete &&
+            this.completeDate === this.original.completeDate &&
+            this.extended === this.original.extended &&
+            this.extendedDate === this.original.extendedDate &&
+            this.discontinued === this.original.discontinued &&
+            this.discontinuedDate === this.original.discontinuedDate
+        );
+    }
+
+    showSuccess(msg) {
+        this.dispatchEvent(new ShowToastEvent({ title: 'Success', message: msg, variant: 'success' }));
+    }
+
+    showError(msg) {
+        this.dispatchEvent(new ShowToastEvent({ title: 'Error', message: msg, variant: 'error' }));
+    }
+}
+
+
+
+html :
+=====
+
+<template>
+    <lightning-card title="State Regulatory Notifications">
+        <div class="slds-p-around_medium">
+            <div class="slds-grid slds-wrap slds-gutters">
+               
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input type="checkbox" label="Incomplete Credential Application"
+                        checked={incomplete} onchange={handleIncompleteChange}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <template if:true={incomplete}>
+                        <lightning-input type="date" data-id="incompleteDate" onchange={handleIncompleteDateChange}
+                            value={incompleteDate} oninvalid={handleInvalidIncomplete} oninput={clearIncompleteError}
+                            style={incompleteStyle} onclick={openCalendarIncomplete}></lightning-input>
+                    </template>
+                </div>
+
+                
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input type="checkbox" label="Complete Credential Application"
+                        checked={complete} onchange={handleCompleteChange}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <template if:true={complete}>
+                        <lightning-input type="date" data-id="completeDate" onchange={handleCompleteDateChange}
+                            value={completeDate} oninvalid={handleInvalidComplete} oninput={clearCompleteError}
+                            style={completeStyle} onclick={openCalendarComplete}></lightning-input>
+                    </template>
+                </div>
+
+               
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input type="checkbox" label="Extended TAT"
+                        checked={extended} onchange={handleExtendedChange}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <template if:true={extended}>
+                        <lightning-input type="date" data-id="extendedDate" onchange={handleExtendedDateChange}
+                            value={extendedDate} oninvalid={handleInvalidExtended} oninput={clearExtendedError}
+                            style={extendedStyle} onclick={openCalendarExtended}></lightning-input>
+                    </template>
+                </div>
+
+                
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input type="checkbox" label="Discontinued Incomplete Data Element"
+                        checked={discontinued} onchange={handleDiscontinuedChange}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <template if:true={discontinued}>
+                        <lightning-input type="date" data-id="discontinuedDate" onchange={handleDiscontinuedDateChange}
+                            value={discontinuedDate} oninvalid={handleInvalidDiscontinued} oninput={clearDiscontinuedError}
+                            style={discontinuedStyle} onclick={openCalendarDiscontinued}></lightning-input>
+                    </template>
+                </div>
+            </div>
+
+            <div class="slds-m-top_medium slds-align_absolute-center">
+                <lightning-button label="Cancel" onclick={handleCancel} class="slds-m-right_small"></lightning-button>
+                <lightning-button label="Save" variant="brand" onclick={handleSave} disabled={isPristine}></lightning-button>
+            </div>
+        </div>
+    </lightning-card>
+</template>
+
+
+
+
+
+-->
+</apex:page>

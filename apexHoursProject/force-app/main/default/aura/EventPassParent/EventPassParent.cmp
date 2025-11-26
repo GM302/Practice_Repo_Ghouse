@@ -1,0 +1,12 @@
+<aura:component >
+     <c:EventPassChild/>
+    <aura:handler name="init" value="{!this}" action="{!c.callme}"/>
+    <aura:handler name="passev" event="c:EventPass" action="{!c.showme}"/>
+    
+    <aura:attribute name="accs" type="Account[]"  />
+    <aura:attribute name="columns" type="List"/>
+    
+    <lightning:dataTable keyField="id" data="{!v.accs}" columns="{!v.columns}"></lightning:dataTable>
+    
+   
+</aura:component>

@@ -1,0 +1,39 @@
+<aura:component>
+    <aura:attribute name="acc" type="Account[]"/>
+    <aura:attribute name="serchf" type="string"/>
+    <aura:handler name="init" value="{!this}" action="{!c.disp}"/>
+    <aura:attribute name="columns" type="list"/>
+    <aura:attribute name="flag" type="boolean" default="false"/>
+    
+    
+    
+    <lightning:card>
+        <aura:set attribute="title">
+            
+            Account<p></p>
+            Recently Viewed:<lightning:buttonMenu >
+                <lightning:menuItem value="MenuItemOne" label="All Accounts" />
+                <lightning:menuItem value="MenuItemTwo" label="My Accounts" />
+                <lightning:menuItem value="MenuItemThree" label="Last week Accounts" />
+                <lightning:menuItem value="MenuItemFour" label="Menu Item Four" />
+            </lightning:buttonMenu>
+            
+            <lightning:input label="search" value="{!v.serchf}"/>
+            <lightning:button label="serchbutton" onclick="{!c.show}" />
+        </aura:set>
+        
+        <aura:set attribute="actions">
+             
+            <lightning:button label="New" />
+        <lightning:button label="Import"/>
+            <lightning:input />
+        
+        </aura:set>
+    <aura:if isTrue="{!v.flag}">
+        <lightning:dataTable keyField="id" data="{!v.acc}" columns="{!v.columns}" hideCheckboxColumn="false"/>
+    
+        </aura:if>
+        
+    </lightning:card>
+	
+</aura:component>

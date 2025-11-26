@@ -1,0 +1,54 @@
+<apex:page >
+    <!--
+    ({
+    validateFields : function(component) {
+        var record = component.get("v.credRequest");
+        var errors = [];
+
+        if(record.A__c && !$A.util.isEmpty(record.a__c) === false) {
+            errors.push("Date A is required when A is selected.");
+        }
+        if(record.B__c && !$A.util.isEmpty(record.b__c) === false) {
+            errors.push("Date B is required when B is selected.");
+        }
+        if(record.C__c && !$A.util.isEmpty(record.c__c) === false) {
+            errors.push("Date C is required when C is selected.");
+        }
+        if(record.D__c && !$A.util.isEmpty(record.d__c) === false) {
+            errors.push("Date D is required when D is selected.");
+        }
+
+        if(errors.length > 0) {
+            $A.get("e.force:showToast").setParams({
+                title: "Validation Error",
+                message: errors.join(" "),
+                type: "error"
+            }).fire();
+        } else {
+            var action = component.get("c.saveCredentialingRequest");
+            action.setParams({ credRequest: record });
+
+            action.setCallback(this, function(response){
+                var state = response.getState();
+                if(state === "SUCCESS") {
+                    $A.get("e.force:showToast").setParams({
+                        title: "Success",
+                        message: response.getReturnValue(),
+                        type: "success"
+                    }).fire();
+                } else {
+                    var message = (response.getError()[0] || {}).message || "Unknown error";
+                    $A.get("e.force:showToast").setParams({
+                        title: "Error",
+                        message: message,
+                        type: "error"
+                    }).fire();
+                }
+            });
+
+            $A.enqueueAction(action);
+        }
+    }
+})
+-->
+</apex:page>

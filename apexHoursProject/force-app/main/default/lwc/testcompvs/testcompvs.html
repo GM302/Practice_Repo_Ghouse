@@ -1,0 +1,40 @@
+<template>
+
+    <lightning-card title="Didply cities">
+        <template for:each={cities} for:item="a">
+            <p key={a}>{a}</p>
+        </template>
+    </lightning-card>
+
+    <lightning-card title="Didpl cities">
+        <template iterator:item={cities}>
+            <p key={item.value}>{item.value}</p>
+        </template>
+    </lightning-card>
+
+
+    <lightning-card title="student">
+        student name : {student.Name}<p></p>
+        student age : {student.Age}<p></p>
+        student phone : {student.Phone}<p></p>
+        student salary : {student.salary}<p></p>
+
+    </lightning-card>
+
+    <lightning-card title="students">
+       <template for:each={students} for:item="std">
+
+        student name :  <p key={std.Name}>{std.Name}</p>
+        student age :<p key={std.Age}>{std.Age}</p>
+        student phone :<p key={std.Phone}>{std.Phone}</p>
+        student salary <p key={std.salary}>{std.salary}</p>
+        
+        student name : {std.Name}
+        student age : {std.Age}
+        student phone : {std.Phone}
+        student salary : {std.salary}
+       
+       </template>
+    </lightning-card>
+    
+</template>

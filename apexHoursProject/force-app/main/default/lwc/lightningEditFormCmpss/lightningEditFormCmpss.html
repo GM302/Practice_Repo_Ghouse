@@ -1,0 +1,21 @@
+<template>
+
+    <lightning-card  variant="Narrow"  title="Create New Contact" icon-name="standard:account">
+
+        <lightning-record-edit-form 
+                    object-api-name={contact} onsuccess={handleSuccess} density="Compact">
+            
+            <lightning-input-field field-name={accountId} value={recordId}></lightning-input-field>
+            <lightning-input-field field-name={firstName}></lightning-input-field>
+            <lightning-input-field field-name={lastName}></lightning-input-field>
+            
+            
+        </lightning-record-edit-form>
+
+             <lightning-button type="submit" label="Save" name="save"></lightning-button>
+
+       
+    </lightning-card>
+
+
+</template>
