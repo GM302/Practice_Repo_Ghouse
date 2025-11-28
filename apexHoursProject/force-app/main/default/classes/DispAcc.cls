@@ -15,9 +15,9 @@ public with sharing class DispAcc {
 	@AuraEnabled
 	Public static List<Account> fetchAcc(string sPhone,string sEmail){
 
-		List<Account> acc = [select Id,Name,Phone,Email__c from account where Phone =:sPhone OR Email__c =:sEmail limit 1];
+		List<Account> acc1 = [select Id,Name,Phone,Email__c from account where Phone =:sPhone OR Email__c =:sEmail limit 1];
 
-		return acc; 
+		return acc1; 
 		
 	}
 }
